@@ -1,0 +1,13 @@
+# Copy this file to terraform.tfvars and fill in your values.
+# Never commit terraform.tfvars — it is listed in .gitignore.
+
+# -----------------------------------------------------------------------
+# Required — obtain from the Cloudflare dashboard
+# -----------------------------------------------------------------------
+
+# Create a scoped API token at https://dash.cloudflare.com/profile/api-tokens
+# Minimum required permissions:
+#   Account > Cloudflare Workers Scripts > Edit
+#   Account > Account Settings > Read
+cloudflare_api_token  = "your-cloudflare-api-token"
+cloudflare_account_id = "your-cloudflare-account-id"
