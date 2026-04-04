@@ -1,6 +1,6 @@
 # CSV Tools
 
-A web-based CSV tool suite for working with CSV files in the browser. Built with [TanStack Start](https://tanstack.com/start) and React.
+A web-based CSV tool suite for working with CSV files in the browser. Built with [TanStack Start](https://tanstack.com/start) and React, deployed to Cloudflare Workers.
 
 ## Features
 
@@ -30,6 +30,20 @@ More tools will be added over time (diffing, transformation, merging, etc.).
 ```bash
 npm install
 npm run dev
+```
+
+## Previewing a Production Build Locally
+
+```bash
+npm run build
+npm run preview  # serves via vite preview (matches Cloudflare Workers runtime)
+```
+
+## Deploying to Cloudflare Workers
+
+```bash
+source terraform/.env  # loads CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID
+npm run deploy         # builds and runs wrangler deploy
 ```
 
 ## Building for Production

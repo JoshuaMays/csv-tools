@@ -12,3 +12,16 @@ dist-ssr
 __unconfig*
 todos.json
 project.inlang/cache
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+terraform/terraform.tfvars
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
