@@ -89,8 +89,8 @@ export function useValidatorFlow(): UseValidatorFlowReturn {
 
   async function handleValidate() {
     try {
-      const { validateRows } = await import('@/utils/schema-builder')
-      const result = validateRows(state.rows, state.columns)
+      const { validateRowsInWorker } = await import('@/utils/schema-builder')
+      const result = await validateRowsInWorker(state.rows, state.columns)
       dispatch({ type: 'VALIDATED', payload: result })
     } catch (err) {
       dispatch({

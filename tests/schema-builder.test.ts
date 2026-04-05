@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { validateRows } from '@/utils/schema-builder'
+
+import { validateRows, getValidatorMessages } from '@/utils/schema-builder'
 import type { ColumnDef } from '@/types/validator'
 
 describe('validateRows – string type', () => {
@@ -142,5 +143,46 @@ describe('validateRows – multi-column and multi-row', () => {
     expect(result.totalRows).toBe(3)
     expect(result.validRows).toBe(1)
     expect(result.errors).toHaveLength(2)
+  })
+
+  it('a row with multiple column errors counts as one invalid row', () => {
+    const cols: ColumnDef[] = [
+      { name: 'email', type: 'email', required: true },
+      { name: 'age', type: 'number', required: true },
+    ]
+    const result = validateRows([{ email: 'bad', age: 'bad' }], cols)
+    expect(result.errors).toHaveLength(2)
+    expect(result.totalRows).toBe(1)
+    expect(result.validRows).toBe(0)
+  })
+})
+
+describe('getValidatorMessages', () => {
+  it('returns strings for all scalar message properties', () => {
+    const msgs = getValidatorMessages()
+    expect(typeof msgs.required).toBe('string')
+    expect(typeof msgs.mustBeNumber).toBe('string')
+    expect(typeof msgs.mustBeEmail).toBe('string')
+    expect(typeof msgs.mustBeUrl).toBe('string')
+    expect(typeof msgs.mustBeDate).toBe('string')
+    expect(typeof msgs.mustBeBoolean).toBe('string')
+  })
+
+  it('returns strings from all function message properties when called', () => {
+    const msgs = getValidatorMessages()
+    expect(typeof msgs.numberMin(5)).toBe('string')
+    expect(typeof msgs.numberMax(100)).toBe('string')
+    expect(typeof msgs.stringMinLength(3)).toBe('string')
+    expect(typeof msgs.stringMaxLength(50)).toBe('string')
+    expect(typeof msgs.enum('a, b, c')).toBe('string')
+  })
+
+  it('interpolates values into parameterised messages', () => {
+    const msgs = getValidatorMessages()
+    expect(msgs.numberMin(18)).toContain('18')
+    expect(msgs.numberMax(65)).toContain('65')
+    expect(msgs.stringMinLength(2)).toContain('2')
+    expect(msgs.stringMaxLength(10)).toContain('10')
+    expect(msgs.enum('yes, no')).toContain('yes, no')
   })
 })

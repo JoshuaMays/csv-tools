@@ -47,8 +47,8 @@ export function useFileUpload({
     }
     setFileName(file.name)
     try {
-      const { parseCsvFile } = await import('@/utils/csv')
-      const result = await parseCsvFile(file)
+      const { parseCsvFileInWorker } = await import('@/utils/csv')
+      const result = await parseCsvFileInWorker(file)
       if (result.headers.length === 0) {
         onErrorRef.current(m.validator_error_no_headers())
         return

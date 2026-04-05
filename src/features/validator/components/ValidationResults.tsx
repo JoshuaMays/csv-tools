@@ -76,7 +76,7 @@ export default function ValidationResults({ result, onReset }: Props) {
               <tbody>
                 {errors.map((err) => (
                   <tr
-                    key={`${err.row}:${err.column}:${err.message}`}
+                    key={`${err.row}:${err.column}`}
                     className="border-b border-(--line) last:border-0 hover:bg-(--hero-a)"
                   >
                     <td className="px-4 py-3 font-mono text-(--sea-ink)">
