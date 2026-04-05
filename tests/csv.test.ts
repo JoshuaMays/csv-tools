@@ -46,7 +46,7 @@ describe('parseCsvFile', () => {
     vi.spyOn(Papa, 'parse').mockImplementationOnce(
       (_input: unknown, config: Parameters<typeof Papa.parse>[1]) => {
         ;(config as any).error(new Error('read error'))
-        return undefined as ReturnType<typeof Papa.parse>
+        return undefined as unknown as ReturnType<typeof Papa.parse>
       },
     )
     const file = new File([''], 'test.csv', { type: 'text/csv' })
