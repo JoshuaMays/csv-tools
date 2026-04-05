@@ -90,10 +90,14 @@ jobs:
       contents: read
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ needs.verify.outputs.node-version }}
+          cache: npm
 
       - name: Install dependencies (wrangler only)
         run: npm ci --ignore-scripts
@@ -122,10 +126,14 @@ jobs:
       pull-requests: write # required for wrangler-action to post the preview URL comment
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ needs.verify.outputs.node-version }}
+          cache: npm
 
       - name: Install dependencies (wrangler only)
         run: npm ci --ignore-scripts
