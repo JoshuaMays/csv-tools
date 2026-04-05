@@ -1,5 +1,7 @@
 import Papa from 'papaparse'
+
 import type { ParsedCsv } from '@/types/validator'
+import { spawnWorker } from '@/utils/spawn-worker'
 
 export function parseCsvString(content: string): ParsedCsv {
   const result = Papa.parse<Record<string, string | undefined>>(content, {
@@ -30,4 +32,11 @@ export function parseCsvFile(file: File): Promise<ParsedCsv> {
       },
     })
   })
+}
+
+export function parseCsvFileInWorker(file: File): Promise<ParsedCsv> {
+  return spawnWorker<{ file: File }, ParsedCsv>(
+    new URL('../workers/csv.worker.ts', import.meta.url),
+    { file },
+  )
 }

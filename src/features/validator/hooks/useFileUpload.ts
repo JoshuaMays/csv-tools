@@ -10,6 +10,7 @@ import { preventUnhandled } from '@atlaskit/pragmatic-drag-and-drop/prevent-unha
 import { useEffect, useRef, useState } from 'react'
 
 import { m } from '@/paraglide/messages'
+import { WorkerError } from '@/utils/spawn-worker'
 import type { ParsedCsv } from '@/types/validator'
 
 type UseFileUploadProps = {
@@ -47,8 +48,8 @@ export function useFileUpload({
     }
     setFileName(file.name)
     try {
-      const { parseCsvFile } = await import('@/utils/csv')
-      const result = await parseCsvFile(file)
+      const { parseCsvFileInWorker } = await import('@/utils/csv')
+      const result = await parseCsvFileInWorker(file)
       if (result.headers.length === 0) {
         onErrorRef.current(m.validator_error_no_headers())
         return
@@ -56,7 +57,11 @@ export function useFileUpload({
       onParsedRef.current(result)
     } catch (err) {
       onErrorRef.current(
-        err instanceof Error ? err.message : m.validator_error_parse_failed(),
+        err instanceof WorkerError
+          ? m.validator_error_parse_failed()
+          : err instanceof Error
+            ? err.message
+            : m.validator_error_parse_failed(),
       )
     }
   }

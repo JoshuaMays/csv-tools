@@ -1,6 +1,12 @@
-import { describe, it, expect } from 'vitest'
-import { validateRows } from '@/utils/schema-builder'
-import type { ColumnDef } from '@/types/validator'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import {
+  validateRows,
+  validateRowsInWorker,
+  getValidatorMessages,
+} from '@/utils/schema-builder'
+import type { ColumnDef, ValidationResult } from '@/types/validator'
+import type { WorkerResponse } from '@/utils/spawn-worker'
 
 describe('validateRows – string type', () => {
   const col: ColumnDef = { name: 'name', type: 'string', required: true }
@@ -20,6 +26,20 @@ describe('validateRows – string type', () => {
 
   it('passes when optional field is empty', () => {
     const result = validateRows([{ name: '' }], [{ ...col, required: false }])
+    expect(result.errors).toHaveLength(0)
+  })
+
+  it('fails when required field is whitespace-only', () => {
+    const result = validateRows([{ name: '   ' }], [col])
+    expect(result.errors).toHaveLength(1)
+    expect(result.errors[0].message).toBe('This field is required')
+  })
+
+  it('passes when optional field is whitespace-only', () => {
+    const result = validateRows(
+      [{ name: '   ' }],
+      [{ ...col, required: false }],
+    )
     expect(result.errors).toHaveLength(0)
   })
 
@@ -142,5 +162,116 @@ describe('validateRows – multi-column and multi-row', () => {
     expect(result.totalRows).toBe(3)
     expect(result.validRows).toBe(1)
     expect(result.errors).toHaveLength(2)
+  })
+
+  it('a row with multiple column errors counts as one invalid row', () => {
+    const cols: ColumnDef[] = [
+      { name: 'email', type: 'email', required: true },
+      { name: 'age', type: 'number', required: true },
+    ]
+    const result = validateRows([{ email: 'bad', age: 'bad' }], cols)
+    expect(result.errors).toHaveLength(2)
+    expect(result.totalRows).toBe(1)
+    expect(result.validRows).toBe(0)
+  })
+})
+
+describe('getValidatorMessages', () => {
+  it('returns strings for all scalar message properties', () => {
+    const msgs = getValidatorMessages()
+    expect(typeof msgs.required).toBe('string')
+    expect(typeof msgs.mustBeNumber).toBe('string')
+    expect(typeof msgs.mustBeEmail).toBe('string')
+    expect(typeof msgs.mustBeUrl).toBe('string')
+    expect(typeof msgs.mustBeDate).toBe('string')
+    expect(typeof msgs.mustBeBoolean).toBe('string')
+  })
+
+  it('returns strings from all function message properties when called', () => {
+    const msgs = getValidatorMessages()
+    expect(typeof msgs.numberMin(5)).toBe('string')
+    expect(typeof msgs.numberMax(100)).toBe('string')
+    expect(typeof msgs.stringMinLength(3)).toBe('string')
+    expect(typeof msgs.stringMaxLength(50)).toBe('string')
+    expect(typeof msgs.enum('a, b, c')).toBe('string')
+  })
+
+  it('interpolates values into parameterised messages', () => {
+    const msgs = getValidatorMessages()
+    expect(msgs.numberMin(18)).toContain('18')
+    expect(msgs.numberMax(65)).toContain('65')
+    expect(msgs.stringMinLength(2)).toContain('2')
+    expect(msgs.stringMaxLength(10)).toContain('10')
+    expect(msgs.enum('yes, no')).toContain('yes, no')
+  })
+})
+
+describe('validateRowsInWorker', () => {
+  let lastWorker: {
+    onmessage: ((e: MessageEvent) => void) | null
+    onerror: ((e: ErrorEvent) => void) | null
+    onmessageerror: (() => void) | null
+    lastMessage: unknown
+    terminated: boolean
+    postMessage: (d: unknown) => void
+    terminate: () => void
+  } | null = null
+
+  beforeEach(() => {
+    vi.stubGlobal(
+      'Worker',
+      class {
+        onmessage: ((e: MessageEvent) => void) | null = null
+        onerror: ((e: ErrorEvent) => void) | null = null
+        onmessageerror: (() => void) | null = null
+        lastMessage: unknown = undefined
+        terminated = false
+        constructor() {
+          lastWorker = this as unknown as typeof lastWorker
+        }
+        postMessage(d: unknown) {
+          this.lastMessage = d
+        }
+        terminate() {
+          this.terminated = true
+        }
+      },
+    )
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    lastWorker = null
+  })
+
+  it('posts rows, columns, and locale to the validator worker', async () => {
+    const cols: ColumnDef[] = [{ name: 'name', type: 'string', required: true }]
+    const rows = [{ name: 'Alice' }]
+    const mockResult: ValidationResult = {
+      totalRows: 1,
+      validRows: 1,
+      errors: [],
+    }
+
+    const promise = validateRowsInWorker(rows, cols)
+
+    lastWorker!.onmessage!(
+      new MessageEvent('message', {
+        data: {
+          ok: true,
+          data: mockResult,
+        } satisfies WorkerResponse<ValidationResult>,
+      }),
+    )
+
+    await expect(promise).resolves.toEqual(mockResult)
+    const msg = lastWorker!.lastMessage as {
+      rows: unknown
+      columns: unknown
+      locale: string
+    }
+    expect(msg.rows).toEqual(rows)
+    expect(msg.columns).toEqual(cols)
+    expect(typeof msg.locale).toBe('string')
   })
 })

@@ -62,5 +62,6 @@
   "validator_error_must_be_boolean": "Debe ser verdadero/falso, s\u00ed/no, o 1/0",
   "validator_error_string_min_length": "Debe tener al menos {min} caracteres",
   "validator_error_string_max_length": "Debe tener como m\u00e1ximo {max} caracteres",
-  "validator_error_enum": "Debe ser uno de: {values}"
+  "validator_error_enum": "Debe ser uno de: {values}",
+  "validator_error_validation_failed": "La validación falló. Por favor, inténtalo de nuevo."
 }

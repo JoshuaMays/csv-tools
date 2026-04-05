@@ -24,7 +24,7 @@ export default function FileUpload({ onParsed, onError }: Props) {
       <input
         ref={inputRef}
         type="file"
-        accept=".csv,text/csv"
+        accept=".csv"
         className="sr-only"
         aria-hidden={true}
         tabIndex={-1}

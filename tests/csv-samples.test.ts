@@ -225,3 +225,25 @@ describe('products-with-errors.csv', () => {
     expect(result.validRows).toBe(3)
   })
 })
+
+// ─── Malformed CSV samples ────────────────────────────────────────────────────
+
+describe('malformed-too-many-fields.csv', () => {
+  it('throws a CSV parse error', () => {
+    const content = readFileSync(
+      join(SAMPLES, 'malformed-too-many-fields.csv'),
+      'utf-8',
+    )
+    expect(() => parseCsvString(content)).toThrow('CSV parse error:')
+  })
+})
+
+describe('malformed-unclosed-quote.csv', () => {
+  it('throws a CSV parse error', () => {
+    const content = readFileSync(
+      join(SAMPLES, 'malformed-unclosed-quote.csv'),
+      'utf-8',
+    )
+    expect(() => parseCsvString(content)).toThrow('CSV parse error:')
+  })
+})
