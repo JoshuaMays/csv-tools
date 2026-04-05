@@ -23,10 +23,16 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+    outputs:
+      node-version: ${{ steps.node-version.outputs.version }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Read Node version
+        id: node-version
+        run: echo "version=$(cat .node-version)" >> $GITHUB_OUTPUT
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -87,8 +93,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version-file: .node-version
-          cache: npm
+          node-version: ${{ needs.verify.outputs.node-version }}
 
       - name: Install dependencies (wrangler only)
         run: npm ci --ignore-scripts
@@ -110,7 +115,7 @@ jobs:
     name: Deploy PR Preview
     runs-on: ubuntu-latest
     needs: verify
-    if: github.event_name == 'pull_request' && github.event.action != 'closed'
+    if: github.event_name == 'pull_request' && github.event.action != 'closed' && github.event.pull_request.head.repo.fork == false
     environment: preview
     permissions:
       contents: read
@@ -120,8 +125,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version-file: .node-version
-          cache: npm
+          node-version: ${{ needs.verify.outputs.node-version }}
 
       - name: Install dependencies (wrangler only)
         run: npm ci --ignore-scripts
@@ -142,24 +146,11 @@ jobs:
   cleanup-preview:
     name: Delete PR Preview Worker
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.head.repo.fork == false
     environment: preview
-    permissions:
-      contents: read
+    permissions: {}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: .node-version
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
       - name: Delete preview Worker
         uses: cloudflare/wrangler-action@v3
         with:
