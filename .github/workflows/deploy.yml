@@ -7,7 +7,7 @@ on:
   pull_request:
     branches:
       - main
-    types: [opened, synchronize, reopened, closed]
+    types: [opened, synchronize, reopened]
   workflow_dispatch:
 
 concurrency:
@@ -18,8 +18,6 @@ jobs:
   verify:
     name: Lint, Typecheck & Test
     runs-on: ubuntu-latest
-    # Skip on PR close – there is nothing to verify, only cleanup to run
-    if: github.event.action != 'closed'
     permissions:
       contents: read
       pull-requests: write
@@ -113,7 +111,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy
+          command: deploy --config dist/server/wrangler.json
 
   deploy-preview:
     name: Deploy PR Preview
@@ -144,24 +142,9 @@ jobs:
           name: dist-${{ github.run_id }}
           path: dist/
 
-      - name: Deploy
+      - name: Deploy preview version
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy --name csv-tools-pr-${{ github.event.pull_request.number }}
-
-  cleanup-preview:
-    name: Delete PR Preview Worker
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.head.repo.fork == false
-    environment: preview
-    permissions: {}
-
-    steps:
-      - name: Delete preview Worker
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: delete --name csv-tools-pr-${{ github.event.pull_request.number }} --force
+          command: versions upload --config dist/server/wrangler.json --preview-alias pr-${{ github.event.pull_request.number }}
