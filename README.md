@@ -41,31 +41,70 @@ npm run preview  # serves via vite preview (matches Cloudflare Workers runtime)
 
 ## Deploying to Cloudflare Workers
 
-```bash
-source terraform/.env  # loads CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID
-npm run deploy         # builds and runs wrangler deploy
-```
-
-## Building for Production
+Copy `.env.example` to `.env` and fill in your Cloudflare credentials:
 
 ```bash
-npm run build
+cp .env.example .env
 ```
 
-Worker scripts are compiled to `public/` by esbuild before Vite runs (see [Scripts](#scripts)).
+Then deploy:
+
+```bash
+source .env
+npm run deploy   # builds and runs wrangler deploy
+```
+
+## Preview Deployments
+
+Every pull request is automatically deployed to a preview Worker at:
+
+```
+https://pr-<number>-csv-tools.<subdomain>.workers.dev
+```
+
+The preview URL is posted as a comment on the PR. The alias is deleted automatically when the PR is closed or merged.
+
+To deploy or delete a preview manually from your local machine:
+
+```bash
+source .env
+PR_NUMBER=42 npm run deploy:preview   # upload a preview version
+PR_NUMBER=42 npm run delete:preview   # remove the preview alias
+```
 
 ## Scripts
 
-| Command             | Description                                         |
-| ------------------- | --------------------------------------------------- |
-| `npm run dev`       | Compile workers then start the Vite dev server      |
-| `npm run build`     | Compile workers then run the Vite production build  |
-| `npm run deploy`    | Build and deploy to Cloudflare Workers via Wrangler |
-| `npm run test`      | Run the Vitest test suite                           |
-| `npm run typecheck` | Type-check without emitting                         |
-| `npm run lint`      | ESLint                                              |
-| `npm run format`    | Prettier                                            |
-| `npm run codegen`   | Recompile ParaglideJS i18n messages                 |
+| Command                  | Description                                               |
+| ------------------------ | --------------------------------------------------------- |
+| `npm run dev`            | Compile workers then start the Vite dev server            |
+| `npm run build`          | Compile workers then run the Vite production build        |
+| `npm run deploy`         | Build and deploy to Cloudflare Workers via Wrangler       |
+| `npm run deploy:preview` | Upload a preview version alias (`PR_NUMBER=<n>` required) |
+| `npm run delete:preview` | Delete a preview version alias (`PR_NUMBER=<n>` required) |
+| `npm run test`           | Run the Vitest test suite                                 |
+| `npm run typecheck`      | Type-check without emitting                               |
+| `npm run lint`           | ESLint                                                    |
+| `npm run format`         | Prettier                                                  |
+| `npm run codegen`        | Recompile ParaglideJS i18n messages                       |
+
+## CI / CD
+
+| Event                 | Jobs                                           |
+| --------------------- | ---------------------------------------------- |
+| Push to `main`        | Lint, typecheck, test → deploy to production   |
+| PR opened / pushed to | Lint, typecheck, test → deploy preview version |
+| PR closed / merged    | Delete preview alias                           |
+| `workflow_dispatch`   | Lint, typecheck, test → deploy to production   |
+
+Deployments use three GitHub Environments with scoped Cloudflare credentials:
+
+| Environment       | Used by           | Protection                                               |
+| ----------------- | ----------------- | -------------------------------------------------------- |
+| `production`      | `deploy`          | Required reviewer — approval needed before wrangler runs |
+| `preview`         | `deploy-preview`  | Required reviewer — approval needed before wrangler runs |
+| `preview-cleanup` | `cleanup-preview` | None — runs automatically on PR close                    |
+
+Fork PRs skip preview deployment since they cannot access environment secrets.
 
 ## Web Workers
 
