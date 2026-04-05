@@ -151,6 +151,53 @@ describe('spawnWorker', () => {
     expect(lastWorker!.terminated).toBe(true)
   })
 
+  it('uses the error code as message when postMessage throws a non-object', async () => {
+    class PrimitiveThrowingWorker extends MockWorker {
+      override postMessage() {
+        throw 'raw string error'
+      }
+    }
+    vi.stubGlobal('Worker', PrimitiveThrowingWorker)
+
+    const promise = spawnWorker<{ x: number }, string>(
+      new URL('test.js', import.meta.url),
+      { x: 1 },
+    )
+
+    const err = await promise.catch((e: unknown) => e)
+    expect(err).toBeInstanceOf(WorkerError)
+    expect((err as WorkerError).code).toBe(
+      WORKER_ERROR_CODES.POSTMESSAGE_FAILED,
+    )
+    // No message property on thrown string, so WorkerError falls back to the code
+    expect((err as WorkerError).message).toBe(
+      WORKER_ERROR_CODES.POSTMESSAGE_FAILED,
+    )
+    expect(lastWorker!.terminated).toBe(true)
+  })
+
+  it('terminates and rejects with POSTMESSAGE_FAILED when postMessage throws synchronously', async () => {
+    class ThrowingWorker extends MockWorker {
+      override postMessage() {
+        throw new DOMException('could not be cloned', 'DataCloneError')
+      }
+    }
+    vi.stubGlobal('Worker', ThrowingWorker)
+
+    const promise = spawnWorker<{ x: number }, string>(
+      new URL('test.js', import.meta.url),
+      { x: 1 },
+    )
+
+    const err = await promise.catch((e: unknown) => e)
+    expect(err).toBeInstanceOf(WorkerError)
+    expect((err as WorkerError).code).toBe(
+      WORKER_ERROR_CODES.POSTMESSAGE_FAILED,
+    )
+    expect((err as WorkerError).message).toContain('cloned')
+    expect(lastWorker!.terminated).toBe(true)
+  })
+
   it('posts the message payload to the worker', async () => {
     const promise = spawnWorker<{ x: number }, string>(
       new URL('test.js', import.meta.url),

@@ -3,6 +3,7 @@ export const WORKER_ERROR_CODES = {
   VALIDATION_FAILED: 'VALIDATION_FAILED',
   WORKER_CRASHED: 'WORKER_CRASHED',
   DESERIALIZE_FAILED: 'DESERIALIZE_FAILED',
+  POSTMESSAGE_FAILED: 'POSTMESSAGE_FAILED',
 } as const
 
 export type WorkerErrorCode =
@@ -43,6 +44,18 @@ export function spawnWorker<TReq, TData>(
       worker.terminate()
       reject(new WorkerError(WORKER_ERROR_CODES.DESERIALIZE_FAILED))
     }
-    worker.postMessage(message)
+    try {
+      worker.postMessage(message)
+    } catch (err) {
+      worker.terminate()
+      reject(
+        new WorkerError(
+          WORKER_ERROR_CODES.POSTMESSAGE_FAILED,
+          err != null && typeof err === 'object' && 'message' in err
+            ? String((err as { message: unknown }).message)
+            : undefined,
+        ),
+      )
+    }
   })
 }

@@ -1,7 +1,12 @@
-import { describe, it, expect } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { validateRows, getValidatorMessages } from '@/utils/schema-builder'
-import type { ColumnDef } from '@/types/validator'
+import {
+  validateRows,
+  validateRowsInWorker,
+  getValidatorMessages,
+} from '@/utils/schema-builder'
+import type { ColumnDef, ValidationResult } from '@/types/validator'
+import type { WorkerResponse } from '@/utils/spawn-worker'
 
 describe('validateRows – string type', () => {
   const col: ColumnDef = { name: 'name', type: 'string', required: true }
@@ -198,5 +203,75 @@ describe('getValidatorMessages', () => {
     expect(msgs.stringMinLength(2)).toContain('2')
     expect(msgs.stringMaxLength(10)).toContain('10')
     expect(msgs.enum('yes, no')).toContain('yes, no')
+  })
+})
+
+describe('validateRowsInWorker', () => {
+  let lastWorker: {
+    onmessage: ((e: MessageEvent) => void) | null
+    onerror: ((e: ErrorEvent) => void) | null
+    onmessageerror: (() => void) | null
+    lastMessage: unknown
+    terminated: boolean
+    postMessage: (d: unknown) => void
+    terminate: () => void
+  } | null = null
+
+  beforeEach(() => {
+    vi.stubGlobal(
+      'Worker',
+      class {
+        onmessage: ((e: MessageEvent) => void) | null = null
+        onerror: ((e: ErrorEvent) => void) | null = null
+        onmessageerror: (() => void) | null = null
+        lastMessage: unknown = undefined
+        terminated = false
+        constructor() {
+          lastWorker = this as unknown as typeof lastWorker
+        }
+        postMessage(d: unknown) {
+          this.lastMessage = d
+        }
+        terminate() {
+          this.terminated = true
+        }
+      },
+    )
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    lastWorker = null
+  })
+
+  it('posts rows, columns, and locale to the validator worker', async () => {
+    const cols: ColumnDef[] = [{ name: 'name', type: 'string', required: true }]
+    const rows = [{ name: 'Alice' }]
+    const mockResult: ValidationResult = {
+      totalRows: 1,
+      validRows: 1,
+      errors: [],
+    }
+
+    const promise = validateRowsInWorker(rows, cols)
+
+    lastWorker!.onmessage!(
+      new MessageEvent('message', {
+        data: {
+          ok: true,
+          data: mockResult,
+        } satisfies WorkerResponse<ValidationResult>,
+      }),
+    )
+
+    await expect(promise).resolves.toEqual(mockResult)
+    const msg = lastWorker!.lastMessage as {
+      rows: unknown
+      columns: unknown
+      locale: string
+    }
+    expect(msg.rows).toEqual(rows)
+    expect(msg.columns).toEqual(cols)
+    expect(typeof msg.locale).toBe('string')
   })
 })
