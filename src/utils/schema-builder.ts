@@ -194,7 +194,7 @@ export function validateRowsInWorker(
   columns: ColumnDef[],
 ): Promise<ValidationResult> {
   return spawnWorker<ValidatorWorkerRequest, ValidationResult>(
-    new Worker('/validator-worker.js'),
+    () => new Worker('/validator-worker.js'),
     { rows, columns, locale: getLocale() },
   )
 }

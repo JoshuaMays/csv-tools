@@ -41,7 +41,7 @@ describe('spawnWorker', () => {
 
   it('resolves with data when the worker responds ok', async () => {
     const promise = spawnWorker<{ x: number }, string>(
-      new Worker(new URL('test.js', import.meta.url), { type: 'module' }),
+      () => new Worker(new URL('test.js', import.meta.url), { type: 'module' }),
       { x: 1 },
     )
 
@@ -56,7 +56,7 @@ describe('spawnWorker', () => {
 
   it('rejects when the worker responds with ok: false', async () => {
     const promise = spawnWorker<{ x: number }, string>(
-      new Worker(new URL('test.js', import.meta.url), { type: 'module' }),
+      () => new Worker(new URL('test.js', import.meta.url), { type: 'module' }),
       { x: 1 },
     )
 
@@ -76,7 +76,7 @@ describe('spawnWorker', () => {
 
   it('rejects when the worker fires an error event', async () => {
     const promise = spawnWorker<{ x: number }, string>(
-      new Worker(new URL('test.js', import.meta.url), { type: 'module' }),
+      () => new Worker(new URL('test.js', import.meta.url), { type: 'module' }),
       { x: 1 },
     )
 
@@ -90,7 +90,7 @@ describe('spawnWorker', () => {
 
   it('terminates the worker after a successful response', async () => {
     const promise = spawnWorker<{ x: number }, string>(
-      new Worker(new URL('test.js', import.meta.url), { type: 'module' }),
+      () => new Worker(new URL('test.js', import.meta.url), { type: 'module' }),
       { x: 1 },
     )
 
@@ -106,7 +106,7 @@ describe('spawnWorker', () => {
 
   it('terminates the worker after a failed response', async () => {
     const promise = spawnWorker<{ x: number }, string>(
-      new Worker(new URL('test.js', import.meta.url), { type: 'module' }),
+      () => new Worker(new URL('test.js', import.meta.url), { type: 'module' }),
       { x: 1 },
     )
 
@@ -125,7 +125,7 @@ describe('spawnWorker', () => {
 
   it('terminates the worker after an error event', async () => {
     const promise = spawnWorker<{ x: number }, string>(
-      new Worker(new URL('test.js', import.meta.url), { type: 'module' }),
+      () => new Worker(new URL('test.js', import.meta.url), { type: 'module' }),
       { x: 1 },
     )
 
@@ -137,7 +137,7 @@ describe('spawnWorker', () => {
 
   it('rejects and terminates when a messageerror event fires', async () => {
     const promise = spawnWorker<{ x: number }, string>(
-      new Worker(new URL('test.js', import.meta.url), { type: 'module' }),
+      () => new Worker(new URL('test.js', import.meta.url), { type: 'module' }),
       { x: 1 },
     )
 
@@ -160,7 +160,7 @@ describe('spawnWorker', () => {
     vi.stubGlobal('Worker', PrimitiveThrowingWorker)
 
     const promise = spawnWorker<{ x: number }, string>(
-      new Worker(new URL('test.js', import.meta.url), { type: 'module' }),
+      () => new Worker(new URL('test.js', import.meta.url), { type: 'module' }),
       { x: 1 },
     )
 
@@ -185,7 +185,7 @@ describe('spawnWorker', () => {
     vi.stubGlobal('Worker', ThrowingWorker)
 
     const promise = spawnWorker<{ x: number }, string>(
-      new Worker(new URL('test.js', import.meta.url), { type: 'module' }),
+      () => new Worker(new URL('test.js', import.meta.url), { type: 'module' }),
       { x: 1 },
     )
 
@@ -200,7 +200,7 @@ describe('spawnWorker', () => {
 
   it('posts the message payload to the worker', async () => {
     const promise = spawnWorker<{ x: number }, string>(
-      new Worker(new URL('test.js', import.meta.url), { type: 'module' }),
+      () => new Worker(new URL('test.js', import.meta.url), { type: 'module' }),
       { x: 42 },
     )
 
@@ -213,5 +213,22 @@ describe('spawnWorker', () => {
     )
 
     await promise
+  })
+  it('rejects with WORKER_CRASHED when the worker factory throws', async () => {
+    class ConstructorThrowingWorker {
+      constructor() {
+        throw new DOMException('not supported', 'NotSupportedError')
+      }
+    }
+    vi.stubGlobal('Worker', ConstructorThrowingWorker)
+
+    const err = await spawnWorker<{ x: number }, string>(
+      () => new Worker(new URL('test.js', import.meta.url), { type: 'module' }),
+      { x: 1 },
+    ).catch((e: unknown) => e)
+
+    expect(err).toBeInstanceOf(WorkerError)
+    expect((err as WorkerError).code).toBe(WORKER_ERROR_CODES.WORKER_CRASHED)
+    expect((err as WorkerError).message).toContain('not supported')
   })
 })
