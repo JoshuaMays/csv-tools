@@ -148,3 +148,35 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: versions upload --config dist/server/wrangler.json --preview-alias pr-${{ github.event.pull_request.number }}
+
+      - name: Comment preview URL on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const url = `https://pr-${{ github.event.pull_request.number }}-csv-tools.${{ vars.WORKERS_SUBDOMAIN }}.workers.dev`;
+            const marker = '<!-- cf-preview -->';
+            const body = `${marker}\n### ☁️ Preview deployment\n\n| | |\n|---|---|\n| **URL** | ${url} |\n| **Alias** | \`pr-${{ github.event.pull_request.number }}\` |`;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const existing = comments.find(c => c.body.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
