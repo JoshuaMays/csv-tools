@@ -5,5 +5,14 @@
   "example_message": "Welcome to your i18n app.",
   "language_label": "Language",
   "current_locale": "Current locale: {locale}",
-  "learn_router": "Learn Paraglide JS"
+  "validator_page": "Validator",
+  "validator_upload_heading": "Drop your CSV file here",
+  "validator_upload_subtext": "or click to browse",
+  "validator_schema_heading": "Define Schema",
+  "validator_schema_subtext": "Set validation rules for each detected column.",
+  "validator_run_button": "Run Validation",
+  "validator_results_all_valid": "All rows are valid!",
+  "validator_results_errors_found": "{count} error(s) found",
+  "validator_results_rows_passed": "{valid} of {total} rows passed validation",
+  "validator_start_over": "Start over"
 }

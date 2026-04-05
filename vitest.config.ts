@@ -6,5 +6,6 @@ export default defineConfig({
   plugins: [tsconfigPaths({ projects: ['./tsconfig.json'] }), viteReact()],
   test: {
     environment: 'jsdom',
+    include: ['tests/**/*.test.ts', 'tests/**/*.test.tsx'],
   },
 })

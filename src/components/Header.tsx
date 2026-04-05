@@ -36,6 +36,13 @@ export default function Header() {
           >
             About
           </Link>
+          <Link
+            to="/validator"
+            className="nav-link"
+            activeProps={{ className: 'nav-link is-active' }}
+          >
+            Validator
+          </Link>
         </div>
       </nav>
     </header>
