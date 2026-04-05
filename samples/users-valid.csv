@@ -1,0 +1,11 @@
+id,name,email,age,website,active,joined_date
+1,Alice Nguyen,alice@example.com,31,https://alicecodes.dev,true,2022-03-15
+2,Bob Martinez,bob@example.com,27,https://bobdesigns.io,true,2023-01-08
+3,Carol Smith,carol@example.com,45,https://carolwrites.com,false,2021-07-22
+4,David Lee,david@example.com,38,https://davidtech.net,true,2020-11-30
+5,Eva Johansson,eva@example.com,29,https://evastudio.se,true,2024-05-19
+6,Frank Okafor,frank@example.com,52,https://frankconsults.com,false,2019-04-03
+7,Grace Kim,grace@example.com,24,https://gracecreates.kr,true,2025-02-14
+8,Henry Zhang,henry@example.com,33,https://henrydev.cn,true,2023-09-07
+9,Isabel Torres,isabel@example.com,41,https://isabeltours.es,false,2021-12-01
+10,James Oduya,james@example.com,36,https://jamesbuild.ug,true,2022-06-28

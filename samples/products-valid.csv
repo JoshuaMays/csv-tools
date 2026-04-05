@@ -1,0 +1,11 @@
+sku,name,category,price,stock,status
+TOOL-001,Hammer,hardware,12.99,150,active
+TOOL-002,Screwdriver Set,hardware,24.50,80,active
+ELEC-001,Wireless Mouse,electronics,34.99,200,active
+ELEC-002,USB-C Hub,electronics,49.99,95,active
+FURN-001,Standing Desk,furniture,399.00,12,active
+FURN-002,Ergonomic Chair,furniture,299.99,25,inactive
+ELEC-003,Mechanical Keyboard,electronics,89.99,60,active
+TOOL-003,Tape Measure,hardware,8.75,300,active
+FURN-003,Monitor Stand,furniture,59.99,45,active
+ELEC-004,Webcam 1080p,electronics,79.99,110,inactive
