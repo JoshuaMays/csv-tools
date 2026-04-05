@@ -30,6 +30,7 @@
     "@tanstack/react-router-ssr-query": "latest",
     "@tanstack/react-start": "latest",
     "@tanstack/router-plugin": "^1.132.0",
+    "daisyui": "^5.5.19",
     "lucide-react": "^1.7.0",
     "papaparse": "^5.5.3",
     "react": "^19.2.0",

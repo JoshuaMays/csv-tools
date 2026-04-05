@@ -1,76 +1,110 @@
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap');
 @import 'tailwindcss';
 @plugin "@tailwindcss/typography";
+@plugin "daisyui";
 
 @theme {
   --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
 }
 
+/* ─── Primitive colour palette ─────────────────────────────── */
+/* Theme-invariant raw values. Semantic tokens reference these. */
 :root {
-  --sea-ink: #173a40;
-  --sea-ink-soft: #416166;
-  --lagoon: #4fb8b2;
-  --lagoon-deep: #328f97;
-  --palm: #2f6a4a;
-  --sand: #e7f0e8;
-  --foam: #f3faf5;
-  --surface: rgba(255, 255, 255, 0.74);
-  --surface-strong: rgba(255, 255, 255, 0.9);
-  --line: rgba(23, 58, 64, 0.14);
-  --inset-glint: rgba(255, 255, 255, 0.82);
-  --kicker: rgba(47, 106, 74, 0.9);
-  --bg-base: #e7f3ec;
-  --header-bg: rgba(251, 255, 248, 0.84);
-  --chip-bg: rgba(255, 255, 255, 0.8);
-  --chip-line: rgba(47, 106, 74, 0.18);
-  --link-bg-hover: rgba(255, 255, 255, 0.9);
-  --hero-a: rgba(79, 184, 178, 0.36);
-  --hero-b: rgba(47, 106, 74, 0.2);
+  /* Teal scale */
+  --teal-50: 169 36% 88%;
+  --teal-100: 170 23% 75%;
+  --teal-200: 175 67% 79%;
+  --teal-300: 173 63% 73%;
+  --teal-400: 176 60% 61%;
+  --teal-500: 177 43% 52%;
+  --teal-600: 185 50% 39%;
+  --teal-700: 185 53% 30%;
+  --teal-800: 188 22% 33%;
+  --teal-900: 189 47% 17%;
+  /* Green scale */
+  --green-400: 149 45% 61%;
+  --green-800: 147 39% 30%;
+  /* Neutral / base scale */
+  --base-50: 137 41% 97%;
+  --base-100: 127 23% 92%;
+  --base-150: 145 33% 93%;
+  --base-900: 196 33% 9%;
+  --base-925: 197 36% 10%;
+  --base-950: 197 41% 7%;
+}
+
+/* ─── Semantic tokens ───────────────────────────────────────── */
+:root {
+  --sea-ink: hsl(var(--teal-900));
+  --sea-ink-soft: hsl(var(--teal-800));
+  --lagoon: hsl(var(--teal-500));
+  --lagoon-deep: hsl(var(--teal-600));
+  --palm: hsl(var(--green-800));
+  --sand: hsl(var(--base-100));
+  --foam: hsl(var(--base-50));
+  --surface: hsl(0 0% 100% / 0.74);
+  --surface-strong: hsl(0 0% 100% / 0.9);
+  --line: hsl(var(--teal-900) / 0.14);
+  --inset-glint: hsl(0 0% 100% / 0.82);
+  --bg-base: hsl(var(--base-150));
+  --header-bg: hsl(94 100% 99% / 0.84);
+  --chip-bg: hsl(0 0% 100% / 0.8);
+  --chip-line: hsl(var(--green-800) / 0.18);
+  --link-bg-hover: hsl(0 0% 100% / 0.9);
+  --link-hover: hsl(var(--teal-700));
+  --hero-a: hsl(var(--teal-500) / 0.36);
+  --hero-b: hsl(var(--green-800) / 0.2);
+
+  /* ── Role tokens ── */
+  --text-base: var(--sea-ink);
+  --text-muted: var(--sea-ink-soft);
+  --text-link: var(--lagoon-deep);
+  --text-link-hover: var(--link-hover);
 }
 
 :root[data-theme='dark'] {
-  --sea-ink: #d7ece8;
-  --sea-ink-soft: #afcdc8;
-  --lagoon: #60d7cf;
-  --lagoon-deep: #8de5db;
-  --palm: #6ec89a;
-  --sand: #0f1a1e;
-  --foam: #101d22;
-  --surface: rgba(16, 30, 34, 0.8);
-  --surface-strong: rgba(15, 27, 31, 0.92);
-  --line: rgba(141, 229, 219, 0.18);
-  --inset-glint: rgba(194, 247, 238, 0.14);
-  --kicker: #b8efe5;
-  --bg-base: #0a1418;
-  --header-bg: rgba(10, 20, 24, 0.8);
-  --chip-bg: rgba(13, 28, 32, 0.9);
-  --chip-line: rgba(141, 229, 219, 0.24);
-  --link-bg-hover: rgba(24, 44, 49, 0.8);
-  --hero-a: rgba(96, 215, 207, 0.18);
-  --hero-b: rgba(110, 200, 154, 0.12);
+  --sea-ink: hsl(var(--teal-50));
+  --sea-ink-soft: hsl(var(--teal-100));
+  --lagoon: hsl(var(--teal-400));
+  --lagoon-deep: hsl(var(--teal-300));
+  --palm: hsl(var(--green-400));
+  --sand: hsl(var(--base-900));
+  --foam: hsl(var(--base-925));
+  --surface: hsl(var(--base-900) / 0.8);
+  --surface-strong: hsl(var(--base-950) / 0.92);
+  --line: hsl(var(--teal-300) / 0.18);
+  --inset-glint: hsl(var(--teal-200) / 0.14);
+  --bg-base: hsl(var(--base-950));
+  --header-bg: hsl(var(--base-950) / 0.8);
+  --chip-bg: hsl(193 42% 9% / 0.9);
+  --chip-line: hsl(var(--teal-300) / 0.24);
+  --link-bg-hover: hsl(192 34% 14% / 0.8);
+  --link-hover: hsl(var(--teal-200));
+  --hero-a: hsl(var(--teal-400) / 0.18);
+  --hero-b: hsl(var(--green-400) / 0.12);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --sea-ink: #d7ece8;
-    --sea-ink-soft: #afcdc8;
-    --lagoon: #60d7cf;
-    --lagoon-deep: #8de5db;
-    --palm: #6ec89a;
-    --sand: #0f1a1e;
-    --foam: #101d22;
-    --surface: rgba(16, 30, 34, 0.8);
-    --surface-strong: rgba(15, 27, 31, 0.92);
-    --line: rgba(141, 229, 219, 0.18);
-    --inset-glint: rgba(194, 247, 238, 0.14);
-    --kicker: #b8efe5;
-    --bg-base: #0a1418;
-    --header-bg: rgba(10, 20, 24, 0.8);
-    --chip-bg: rgba(13, 28, 32, 0.9);
-    --chip-line: rgba(141, 229, 219, 0.24);
-    --link-bg-hover: rgba(24, 44, 49, 0.8);
-    --hero-a: rgba(96, 215, 207, 0.18);
-    --hero-b: rgba(110, 200, 154, 0.12);
+    --sea-ink: hsl(var(--teal-50));
+    --sea-ink-soft: hsl(var(--teal-100));
+    --lagoon: hsl(var(--teal-400));
+    --lagoon-deep: hsl(var(--teal-300));
+    --palm: hsl(var(--green-400));
+    --sand: hsl(var(--base-900));
+    --foam: hsl(var(--base-925));
+    --surface: hsl(var(--base-900) / 0.8);
+    --surface-strong: hsl(var(--base-950) / 0.92);
+    --line: hsl(var(--teal-300) / 0.18);
+    --inset-glint: hsl(var(--teal-200) / 0.14);
+    --bg-base: hsl(var(--base-950));
+    --header-bg: hsl(var(--base-950) / 0.8);
+    --chip-bg: hsl(193 42% 9% / 0.9);
+    --chip-line: hsl(var(--teal-300) / 0.24);
+    --link-bg-hover: hsl(192 34% 14% / 0.8);
+    --link-hover: hsl(var(--teal-200));
+    --hero-a: hsl(var(--teal-400) / 0.18);
+    --hero-b: hsl(var(--green-400) / 0.12);
   }
 }
 
@@ -79,14 +113,13 @@
 }
 
 html,
-body,
-#app {
-  min-height: 100%;
+body {
+  min-height: 100dvh;
 }
 
 body {
   margin: 0;
-  color: var(--sea-ink);
+  color: var(--text-base);
   font-family: var(--font-sans);
   background-color: var(--bg-base);
   background:
@@ -144,14 +177,14 @@ body::after {
 }
 
 a {
-  color: var(--lagoon-deep);
+  color: var(--text-link);
   text-decoration-color: rgba(50, 143, 151, 0.4);
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
 }
 
 a:hover {
-  color: #246f76;
+  color: var(--text-link-hover);
 }
 
 code {
@@ -190,23 +223,6 @@ pre code {
   backdrop-filter: blur(4px);
 }
 
-.feature-card {
-  background: linear-gradient(
-    165deg,
-    color-mix(in oklab, var(--surface-strong) 93%, white 7%),
-    var(--surface)
-  );
-  box-shadow:
-    0 1px 0 var(--inset-glint) inset,
-    0 18px 34px rgba(30, 90, 72, 0.1),
-    0 4px 14px rgba(23, 58, 64, 0.06);
-}
-
-.feature-card:hover {
-  transform: translateY(-2px);
-  border-color: color-mix(in oklab, var(--lagoon-deep) 35%, var(--line));
-}
-
 button,
 .island-shell,
 a {
@@ -217,20 +233,12 @@ a {
     transform 180ms ease;
 }
 
-.island-kicker {
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  font-weight: 700;
-  font-size: 0.69rem;
-  color: var(--kicker);
-}
-
 .nav-link {
   position: relative;
   display: inline-flex;
   align-items: center;
   text-decoration: none;
-  color: var(--sea-ink-soft);
+  color: var(--text-muted);
 }
 
 .nav-link::after {
@@ -248,7 +256,7 @@ a {
 
 .nav-link:hover,
 .nav-link.is-active {
-  color: var(--sea-ink);
+  color: var(--text-base);
 }
 
 .nav-link:hover::after,
@@ -260,11 +268,6 @@ a {
   .nav-link::after {
     bottom: -4px;
   }
-}
-
-.site-footer {
-  border-top: 1px solid var(--line);
-  background: color-mix(in oklab, var(--header-bg) 84%, transparent 16%);
 }
 
 .rise-in {
