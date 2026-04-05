@@ -6,8 +6,8 @@
     "#/*": "./src/*"
   },
   "scripts": {
-    "dev": "node scripts/build-workers.mjs && vite dev --port 3000",
-    "build": "node scripts/build-workers.mjs && vite build",
+    "dev": "npm run codegen && node scripts/build-workers.mjs && vite dev --port 3000",
+    "build": "npm run codegen && node scripts/build-workers.mjs && vite build",
     "preview": "vite preview",
     "deploy": "npm run build && wrangler deploy",
     "codegen": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide",
