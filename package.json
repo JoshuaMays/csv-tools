@@ -11,7 +11,6 @@
     "preview": "vite preview",
     "deploy": "npm run build && wrangler deploy --config dist/server/wrangler.json",
     "deploy:preview": "npm run build && wrangler versions upload --config dist/server/wrangler.json --preview-alias pr-$PR_NUMBER",
-    "delete:preview": "dotenv -- node scripts/delete-preview.mjs",
     "codegen": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
