@@ -62,14 +62,13 @@ Every pull request is automatically deployed to a preview Worker at:
 https://pr-<number>-csv-tools.<subdomain>.workers.dev
 ```
 
-The preview URL is posted as a comment on the PR. The alias is deleted automatically when the PR is closed or merged.
+The preview URL is posted as a comment on the PR. Preview aliases persist indefinitely (Cloudflare retains the 1000 most recent per worker and auto-prunes the oldest).
 
-To deploy or delete a preview manually from your local machine:
+To upload a preview manually from your local machine:
 
 ```bash
 source .env
-PR_NUMBER=42 npm run deploy:preview   # upload a preview version
-PR_NUMBER=42 npm run delete:preview   # remove the preview alias
+PR_NUMBER=42 npm run deploy:preview
 ```
 
 ## Scripts
@@ -80,7 +79,6 @@ PR_NUMBER=42 npm run delete:preview   # remove the preview alias
 | `npm run build`          | Compile workers then run the Vite production build        |
 | `npm run deploy`         | Build and deploy to Cloudflare Workers via Wrangler       |
 | `npm run deploy:preview` | Upload a preview version alias (`PR_NUMBER=<n>` required) |
-| `npm run delete:preview` | Delete a preview version alias (`PR_NUMBER=<n>` required) |
 | `npm run test`           | Run the Vitest test suite                                 |
 | `npm run typecheck`      | Type-check without emitting                               |
 | `npm run lint`           | ESLint                                                    |
@@ -93,16 +91,14 @@ PR_NUMBER=42 npm run delete:preview   # remove the preview alias
 | --------------------- | ---------------------------------------------- |
 | Push to `main`        | Lint, typecheck, test → deploy to production   |
 | PR opened / pushed to | Lint, typecheck, test → deploy preview version |
-| PR closed / merged    | Delete preview alias                           |
 | `workflow_dispatch`   | Lint, typecheck, test → deploy to production   |
 
-Deployments use three GitHub Environments with scoped Cloudflare credentials:
+Deployments use two GitHub Environments with scoped Cloudflare credentials:
 
-| Environment       | Used by           | Protection                                               |
-| ----------------- | ----------------- | -------------------------------------------------------- |
-| `production`      | `deploy`          | Required reviewer — approval needed before wrangler runs |
-| `preview`         | `deploy-preview`  | Required reviewer — approval needed before wrangler runs |
-| `preview-cleanup` | `cleanup-preview` | None — runs automatically on PR close                    |
+| Environment  | Used by          | Protection                                               |
+| ------------ | ---------------- | -------------------------------------------------------- |
+| `production` | `deploy`         | Required reviewer — approval needed before wrangler runs |
+| `preview`    | `deploy-preview` | Required reviewer — approval needed before wrangler runs |
 
 Fork PRs skip preview deployment since they cannot access environment secrets.
 
