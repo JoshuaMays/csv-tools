@@ -16,7 +16,7 @@ export default function Header() {
           </Link>
         </h2>
 
-        <div className="ml-auto flex items-center gap-1.5 sm:ml-0 sm:gap-2">
+        <div className="ml-auto flex items-center gap-1.5 sm:order-3 sm:ml-auto sm:gap-2">
           <ParaglideLocaleSwitcher />
           <ThemeToggle />
         </div>
