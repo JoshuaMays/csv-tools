@@ -35,12 +35,6 @@ describe('validateRows – string type', () => {
     expect(result.errors).toHaveLength(1)
   })
 
-  it('enforces pattern', () => {
-    const c: ColumnDef = { ...col, pattern: '^[A-Z]+$' }
-    expect(validateRows([{ name: 'alice' }], [c]).errors).toHaveLength(1)
-    expect(validateRows([{ name: 'ALICE' }], [c]).errors).toHaveLength(0)
-  })
-
   it('enforces enum', () => {
     const c: ColumnDef = { ...col, enum: ['active', 'inactive'] }
     expect(validateRows([{ name: 'pending' }], [c]).errors).toHaveLength(1)

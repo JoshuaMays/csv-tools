@@ -13,7 +13,6 @@ export type ColumnDef = {
   // string constraints
   minLength?: number
   maxLength?: number
-  pattern?: string
   enum?: string[]
   // number constraints
   min?: number

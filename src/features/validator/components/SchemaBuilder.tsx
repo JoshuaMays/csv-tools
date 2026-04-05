@@ -1,4 +1,5 @@
 import type { ColumnDef, ColumnType } from '@/types/validator'
+import { useSchemaBuilder } from '@/features/validator/hooks/useSchemaBuilder'
 
 const COLUMN_TYPES: { value: ColumnType; label: string }[] = [
   { value: 'string', label: 'Text' },
@@ -16,59 +17,16 @@ type Props = {
   onChangeFile: () => void
 }
 
-function updateColumn(
-  columns: ColumnDef[],
-  index: number,
-  patch: Partial<ColumnDef>,
-): ColumnDef[] {
-  return columns.map((col, i) => (i === index ? { ...col, ...patch } : col))
-}
-
 export default function SchemaBuilder({
   columns,
   onChange,
   onValidate,
   onChangeFile,
 }: Props) {
-  function handleType(index: number, type: ColumnType) {
-    // Clear type-specific constraints when changing type
-    const {
-      minLength,
-      maxLength,
-      pattern,
-      enum: _enum,
-      min,
-      max,
-      ...rest
-    } = columns[index]
-    void minLength
-    void maxLength
-    void pattern
-    void _enum
-    void min
-    void max
-    onChange(updateColumn(columns, index, { ...rest, type }))
-  }
-
-  function handleField<TKey extends keyof ColumnDef>(
-    index: number,
-    key: TKey,
-    value: ColumnDef[TKey],
-  ) {
-    onChange(updateColumn(columns, index, { [key]: value }))
-  }
-
-  function handleEnumChange(index: number, raw: string) {
-    const values = raw
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean)
-    onChange(
-      updateColumn(columns, index, {
-        enum: values.length ? values : undefined,
-      }),
-    )
-  }
+  const { handleType, handleField, handleEnumChange } = useSchemaBuilder({
+    columns,
+    onChange,
+  })
 
   return (
     <div className="flex flex-col gap-6">
@@ -89,14 +47,14 @@ export default function SchemaBuilder({
 
       <div className="grid gap-4 sm:grid-cols-2">
         {columns.map((col, i) => (
-          <div
+          <fieldset
             key={col.name}
             className="island-shell flex flex-col gap-3 rounded-2xl p-5"
           >
             <div className="flex items-center justify-between gap-2">
-              <span className="truncate font-semibold text-(--sea-ink)">
+              <legend className="float-left truncate font-semibold text-(--sea-ink)">
                 {col.name}
-              </span>
+              </legend>
               <label className="flex cursor-pointer items-center gap-1.5 text-sm text-(--sea-ink-soft)">
                 <input
                   type="checkbox"
@@ -108,10 +66,10 @@ export default function SchemaBuilder({
               </label>
             </div>
 
-            <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-(--sea-ink-soft)">
+            <label className="flex flex-col gap-1">
+              <span className="text-xs font-semibold uppercase tracking-wide text-(--sea-ink-soft)">
                 Type
-              </label>
+              </span>
               <select
                 value={col.type}
                 onChange={(e) => handleType(i, e.target.value as ColumnType)}
@@ -123,16 +81,16 @@ export default function SchemaBuilder({
                   </option>
                 ))}
               </select>
-            </div>
+            </label>
 
             {(col.type === 'string' ||
               col.type === 'email' ||
               col.type === 'url') && (
               <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-(--sea-ink-soft)">
+                <label className="flex flex-col gap-1">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-(--sea-ink-soft)">
                     Min length
-                  </label>
+                  </span>
                   <input
                     type="number"
                     min={0}
@@ -147,11 +105,11 @@ export default function SchemaBuilder({
                     }
                     className="w-full rounded-lg border border-(--line) bg-(--chip-bg) px-3 py-2 text-sm text-(--sea-ink) focus:outline-none focus:ring-2 focus:ring-(--lagoon)"
                   />
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-(--sea-ink-soft)">
+                </label>
+                <label className="flex flex-col gap-1">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-(--sea-ink-soft)">
                     Max length
-                  </label>
+                  </span>
                   <input
                     type="number"
                     min={0}
@@ -166,47 +124,31 @@ export default function SchemaBuilder({
                     }
                     className="w-full rounded-lg border border-(--line) bg-(--chip-bg) px-3 py-2 text-sm text-(--sea-ink) focus:outline-none focus:ring-2 focus:ring-(--lagoon)"
                   />
-                </div>
+                </label>
               </div>
             )}
 
             {col.type === 'string' && (
-              <>
-                <div>
-                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-(--sea-ink-soft)">
-                    Pattern (regex)
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. ^[A-Z]+"
-                    value={col.pattern ?? ''}
-                    onChange={(e) =>
-                      handleField(i, 'pattern', e.target.value || undefined)
-                    }
-                    className="w-full rounded-lg border border-(--line) bg-(--chip-bg) px-3 py-2 text-sm text-(--sea-ink) focus:outline-none focus:ring-2 focus:ring-(--lagoon)"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-(--sea-ink-soft)">
-                    Allowed values (comma-separated)
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. active, inactive, pending"
-                    value={col.enum?.join(', ') ?? ''}
-                    onChange={(e) => handleEnumChange(i, e.target.value)}
-                    className="w-full rounded-lg border border-(--line) bg-(--chip-bg) px-3 py-2 text-sm text-(--sea-ink) focus:outline-none focus:ring-2 focus:ring-(--lagoon)"
-                  />
-                </div>
-              </>
+              <label className="flex flex-col gap-1">
+                <span className="text-xs font-semibold uppercase tracking-wide text-(--sea-ink-soft)">
+                  Allowed values (comma-separated)
+                </span>
+                <input
+                  type="text"
+                  placeholder="e.g. active, inactive, pending"
+                  value={col.enum?.join(', ') ?? ''}
+                  onChange={(e) => handleEnumChange(i, e.target.value)}
+                  className="w-full rounded-lg border border-(--line) bg-(--chip-bg) px-3 py-2 text-sm text-(--sea-ink) focus:outline-none focus:ring-2 focus:ring-(--lagoon)"
+                />
+              </label>
             )}
 
             {col.type === 'number' && (
               <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-(--sea-ink-soft)">
+                <label className="flex flex-col gap-1">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-(--sea-ink-soft)">
                     Min value
-                  </label>
+                  </span>
                   <input
                     type="number"
                     placeholder="—"
@@ -220,11 +162,11 @@ export default function SchemaBuilder({
                     }
                     className="w-full rounded-lg border border-(--line) bg-(--chip-bg) px-3 py-2 text-sm text-(--sea-ink) focus:outline-none focus:ring-2 focus:ring-(--lagoon)"
                   />
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-(--sea-ink-soft)">
+                </label>
+                <label className="flex flex-col gap-1">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-(--sea-ink-soft)">
                     Max value
-                  </label>
+                  </span>
                   <input
                     type="number"
                     placeholder="—"
@@ -238,10 +180,10 @@ export default function SchemaBuilder({
                     }
                     className="w-full rounded-lg border border-(--line) bg-(--chip-bg) px-3 py-2 text-sm text-(--sea-ink) focus:outline-none focus:ring-2 focus:ring-(--lagoon)"
                   />
-                </div>
+                </label>
               </div>
             )}
-          </div>
+          </fieldset>
         ))}
       </div>
 

@@ -81,13 +81,6 @@ function buildColumnValidator(
             `Must be at most ${col.maxLength} characters`,
           ),
         )
-      if (col.pattern)
-        pipes.push(
-          v.regex(
-            new RegExp(col.pattern),
-            `Must match pattern: ${col.pattern}`,
-          ),
-        )
       if (col.enum && col.enum.length > 0) {
         const allowed = col.enum
         pipes.push(

@@ -14,15 +14,25 @@ export default function ValidationResults({ result, onReset }: Props) {
     <div className="flex flex-col gap-6">
       {/* Summary banner */}
       <div
+        role="status"
+        aria-live="polite"
         className={[
           'island-shell flex items-center gap-4 rounded-2xl p-5',
           allValid ? 'bg-(--hero-b)' : 'bg-[rgba(220,38,38,0.06)]',
         ].join(' ')}
       >
         {allValid ? (
-          <CheckCircle size={28} className="shrink-0 text-(--palm)" />
+          <CheckCircle
+            size={28}
+            aria-hidden={true}
+            className="shrink-0 text-(--palm)"
+          />
         ) : (
-          <XCircle size={28} className="shrink-0 text-red-500" />
+          <XCircle
+            size={28}
+            aria-hidden={true}
+            className="shrink-0 text-red-500"
+          />
         )}
         <div>
           <p className="font-bold text-(--sea-ink)">
@@ -42,6 +52,7 @@ export default function ValidationResults({ result, onReset }: Props) {
         <div className="island-shell overflow-hidden rounded-2xl">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
+              <caption className="sr-only">Validation errors</caption>
               <thead>
                 <tr className="border-b border-(--line) text-left text-xs font-semibold uppercase tracking-wide text-(--sea-ink-soft)">
                   <th className="px-4 py-3">Row</th>
@@ -51,9 +62,9 @@ export default function ValidationResults({ result, onReset }: Props) {
                 </tr>
               </thead>
               <tbody>
-                {errors.map((err, i) => (
+                {errors.map((err) => (
                   <tr
-                    key={i}
+                    key={`${err.row}:${err.column}:${err.message}`}
                     className="border-b border-(--line) last:border-0 hover:bg-(--hero-a)"
                   >
                     <td className="px-4 py-3 font-mono text-(--sea-ink)">
