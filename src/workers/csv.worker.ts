@@ -2,6 +2,7 @@
 
 import Papa from 'papaparse'
 
+import { WORKER_ERROR_CODES } from '@/utils/spawn-worker'
 import type { WorkerResponse } from '@/utils/spawn-worker'
 import type { ParsedCsv } from '@/types/validator'
 
@@ -17,7 +18,7 @@ self.onmessage = (event: MessageEvent<CsvWorkerRequest>) => {
       if (results.errors.length > 0) {
         const response: WorkerResponse<ParsedCsv> = {
           ok: false,
-          error: `CSV parse error: ${results.errors[0].message}`,
+          errorCode: WORKER_ERROR_CODES.CSV_PARSE_FAILED,
         }
         self.postMessage(response)
         return
@@ -29,10 +30,10 @@ self.onmessage = (event: MessageEvent<CsvWorkerRequest>) => {
       const response: WorkerResponse<ParsedCsv> = { ok: true, data }
       self.postMessage(response)
     },
-    error(err) {
+    error() {
       const response: WorkerResponse<ParsedCsv> = {
         ok: false,
-        error: err.message,
+        errorCode: WORKER_ERROR_CODES.CSV_PARSE_FAILED,
       }
       self.postMessage(response)
     },

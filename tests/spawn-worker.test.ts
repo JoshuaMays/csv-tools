@@ -1,6 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { spawnWorker } from '@/utils/spawn-worker'
+import {
+  spawnWorker,
+  WorkerError,
+  WORKER_ERROR_CODES,
+} from '@/utils/spawn-worker'
 import type { WorkerResponse } from '@/utils/spawn-worker'
 
 let lastWorker: MockWorker | null = null
@@ -10,6 +14,7 @@ class MockWorker {
   lastMessage: unknown = undefined
   onmessage: ((e: MessageEvent) => void) | null = null
   onerror: ((e: ErrorEvent) => void) | null = null
+  onmessageerror: (() => void) | null = null
 
   constructor(_url: URL) {
     lastWorker = this
@@ -59,12 +64,14 @@ describe('spawnWorker', () => {
       new MessageEvent('message', {
         data: {
           ok: false,
-          error: 'something broke',
+          errorCode: WORKER_ERROR_CODES.CSV_PARSE_FAILED,
         } satisfies WorkerResponse<string>,
       }),
     )
 
-    await expect(promise).rejects.toThrow('something broke')
+    const err = await promise.catch((e: unknown) => e)
+    expect(err).toBeInstanceOf(WorkerError)
+    expect((err as WorkerError).code).toBe(WORKER_ERROR_CODES.CSV_PARSE_FAILED)
   })
 
   it('rejects when the worker fires an error event', async () => {
@@ -75,7 +82,10 @@ describe('spawnWorker', () => {
 
     lastWorker!.onerror!(new ErrorEvent('error', { message: 'worker crashed' }))
 
-    await expect(promise).rejects.toThrow('worker crashed')
+    const err = await promise.catch((e: unknown) => e)
+    expect(err).toBeInstanceOf(WorkerError)
+    expect((err as WorkerError).code).toBe(WORKER_ERROR_CODES.WORKER_CRASHED)
+    expect((err as WorkerError).message).toBe('worker crashed')
   })
 
   it('terminates the worker after a successful response', async () => {
@@ -102,7 +112,10 @@ describe('spawnWorker', () => {
 
     lastWorker!.onmessage!(
       new MessageEvent('message', {
-        data: { ok: false, error: 'fail' } satisfies WorkerResponse<string>,
+        data: {
+          ok: false,
+          errorCode: WORKER_ERROR_CODES.CSV_PARSE_FAILED,
+        } satisfies WorkerResponse<string>,
       }),
     )
 
@@ -119,6 +132,22 @@ describe('spawnWorker', () => {
     lastWorker!.onerror!(new ErrorEvent('error', { message: 'crash' }))
 
     await expect(promise).rejects.toThrow()
+    expect(lastWorker!.terminated).toBe(true)
+  })
+
+  it('rejects and terminates when a messageerror event fires', async () => {
+    const promise = spawnWorker<{ x: number }, string>(
+      new URL('test.js', import.meta.url),
+      { x: 1 },
+    )
+
+    lastWorker!.onmessageerror!()
+
+    const err = await promise.catch((e: unknown) => e)
+    expect(err).toBeInstanceOf(WorkerError)
+    expect((err as WorkerError).code).toBe(
+      WORKER_ERROR_CODES.DESERIALIZE_FAILED,
+    )
     expect(lastWorker!.terminated).toBe(true)
   })
 

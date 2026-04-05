@@ -24,6 +24,20 @@ describe('validateRows – string type', () => {
     expect(result.errors).toHaveLength(0)
   })
 
+  it('fails when required field is whitespace-only', () => {
+    const result = validateRows([{ name: '   ' }], [col])
+    expect(result.errors).toHaveLength(1)
+    expect(result.errors[0].message).toBe('This field is required')
+  })
+
+  it('passes when optional field is whitespace-only', () => {
+    const result = validateRows(
+      [{ name: '   ' }],
+      [{ ...col, required: false }],
+    )
+    expect(result.errors).toHaveLength(0)
+  })
+
   it('enforces minLength', () => {
     const c: ColumnDef = { ...col, minLength: 3 }
     const result = validateRows([{ name: 'ab' }], [c])

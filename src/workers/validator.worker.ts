@@ -2,6 +2,7 @@
 
 import { overwriteGetLocale, locales, baseLocale } from '@/paraglide/runtime'
 import { validateRows, getValidatorMessages } from '@/utils/schema-builder'
+import { WORKER_ERROR_CODES } from '@/utils/spawn-worker'
 import type { WorkerResponse } from '@/utils/spawn-worker'
 import type { ColumnDef, ValidationResult } from '@/types/validator'
 
@@ -18,19 +19,19 @@ self.onmessage = (event: MessageEvent<ValidatorWorkerRequest>) => {
   const safeLocale: Locale = (locales as readonly string[]).includes(locale)
     ? (locale as Locale)
     : baseLocale
-  overwriteGetLocale(() => safeLocale)
-  const messages = getValidatorMessages()
   try {
+    overwriteGetLocale(() => safeLocale)
+    const messages = getValidatorMessages()
     const result = validateRows(rows, columns, messages)
     const response: WorkerResponse<ValidationResult> = {
       ok: true,
       data: result,
     }
     self.postMessage(response)
-  } catch (err) {
+  } catch {
     const response: WorkerResponse<ValidationResult> = {
       ok: false,
-      error: err instanceof Error ? err.message : 'Validation failed',
+      errorCode: WORKER_ERROR_CODES.VALIDATION_FAILED,
     }
     self.postMessage(response)
   }

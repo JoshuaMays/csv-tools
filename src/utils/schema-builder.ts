@@ -150,7 +150,7 @@ export function validateRows(
       const rawValue = row[col.name]
 
       // Handle required/optional missing values
-      if (!rawValue) {
+      if (!rawValue?.trim()) {
         if (col.required) {
           errors.push({
             row: rowNum,

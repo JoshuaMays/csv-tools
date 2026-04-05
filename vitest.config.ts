@@ -7,5 +7,9 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     include: ['tests/**/*.test.ts', 'tests/**/*.test.tsx'],
+    coverage: {
+      exclude: ['src/paraglide/**', 'src/routeTree.gen.ts'],
+      reporter: ['text', 'json-summary', 'json'],
+    },
   },
 })

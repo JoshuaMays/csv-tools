@@ -1,6 +1,7 @@
 import { useReducer } from 'react'
 
 import { m } from '@/paraglide/messages'
+import { WorkerError } from '@/utils/spawn-worker'
 import type { ColumnDef, ParsedCsv, ValidationResult } from '@/types/validator'
 
 type Stage = 'upload' | 'schema' | 'results'
@@ -96,9 +97,11 @@ export function useValidatorFlow(): UseValidatorFlowReturn {
       dispatch({
         type: 'ERROR',
         payload:
-          err instanceof Error
-            ? err.message
-            : 'Validation failed unexpectedly.',
+          err instanceof WorkerError
+            ? m.validator_error_validation_failed()
+            : err instanceof Error
+              ? err.message
+              : m.validator_error_validation_failed(),
       })
     }
   }
