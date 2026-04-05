@@ -1,4 +1,6 @@
 import { CheckCircle, XCircle } from 'lucide-react'
+
+import { m } from '@/paraglide/messages'
 import type { ValidationResult } from '@/types/validator'
 
 type Props = {
@@ -37,12 +39,14 @@ export default function ValidationResults({ result, onReset }: Props) {
         <div>
           <p className="font-bold text-(--sea-ink)">
             {allValid
-              ? 'All rows are valid!'
-              : `${errors.length} error${errors.length === 1 ? '' : 's'} found`}
+              ? m.validator_results_all_valid()
+              : m.validator_results_errors_found({ count: errors.length })}
           </p>
           <p className="text-sm text-(--sea-ink-soft)">
-            {validRows} of {totalRows} row{totalRows === 1 ? '' : 's'} passed
-            validation
+            {m.validator_results_rows_passed({
+              valid: validRows,
+              total: totalRows,
+            })}
           </p>
         </div>
       </div>
@@ -52,13 +56,21 @@ export default function ValidationResults({ result, onReset }: Props) {
         <div className="island-shell overflow-hidden rounded-2xl">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <caption className="sr-only">Validation errors</caption>
+              <caption className="sr-only">
+                {m.validator_results_table_caption()}
+              </caption>
               <thead>
                 <tr className="border-b border-(--line) text-left text-xs font-semibold uppercase tracking-wide text-(--sea-ink-soft)">
-                  <th className="px-4 py-3">Row</th>
-                  <th className="px-4 py-3">Column</th>
-                  <th className="px-4 py-3">Value</th>
-                  <th className="px-4 py-3">Error</th>
+                  <th className="px-4 py-3">{m.validator_results_col_row()}</th>
+                  <th className="px-4 py-3">
+                    {m.validator_results_col_column()}
+                  </th>
+                  <th className="px-4 py-3">
+                    {m.validator_results_col_value()}
+                  </th>
+                  <th className="px-4 py-3">
+                    {m.validator_results_col_error()}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -74,7 +86,11 @@ export default function ValidationResults({ result, onReset }: Props) {
                       {err.column}
                     </td>
                     <td className="max-w-50 truncate px-4 py-3 font-mono text-(--sea-ink-soft)">
-                      {err.value || <em className="opacity-50">empty</em>}
+                      {err.value || (
+                        <em className="opacity-50">
+                          {m.validator_results_empty_value()}
+                        </em>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-red-600 dark:text-red-400">
                       {err.message}
@@ -91,7 +107,7 @@ export default function ValidationResults({ result, onReset }: Props) {
         onClick={onReset}
         className="self-start rounded-full border border-(--line) bg-(--chip-bg) px-5 py-2 text-sm font-semibold text-(--sea-ink) transition-colors hover:bg-(--link-bg-hover)"
       >
-        Start over
+        {m.validator_start_over()}
       </button>
     </div>
   )

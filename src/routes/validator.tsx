@@ -1,8 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
+
 import FileUpload from '@/features/validator/components/FileUpload'
 import SchemaBuilder from '@/features/validator/components/SchemaBuilder'
 import ValidationResults from '@/features/validator/components/ValidationResults'
 import { useValidatorFlow } from '@/features/validator/hooks/useValidatorFlow'
+import { m } from '@/paraglide/messages'
 
 export const Route = createFileRoute('/validator')({ component: ValidatorPage })
 
@@ -34,16 +36,16 @@ function ValidatorPage() {
       </div>
       <div className="mb-8">
         <h1 className="display-title mb-2 text-3xl font-bold tracking-tight text-(--sea-ink) sm:text-4xl">
-          CSV Validator
+          {m.validator_page_title()}
         </h1>
         <p className="text-sm text-(--sea-ink-soft)">
-          Upload a CSV, define your schema, and validate every row.
+          {m.validator_page_description()}
         </p>
       </div>
 
       {/* Step indicator */}
       <nav
-        aria-label="Validation steps"
+        aria-label={m.validator_steps_nav_label()}
         className="mb-8 flex items-center gap-2 text-sm font-semibold"
       >
         {(['upload', 'schema', 'results'] as Stage[]).map((s, i) => (
@@ -63,10 +65,10 @@ function ValidatorPage() {
             >
               {i + 1}.{' '}
               {s === 'upload'
-                ? 'Upload'
+                ? m.validator_step_upload()
                 : s === 'schema'
-                  ? 'Schema'
-                  : 'Results'}
+                  ? m.validator_step_schema()
+                  : m.validator_step_results()}
             </span>
           </span>
         ))}

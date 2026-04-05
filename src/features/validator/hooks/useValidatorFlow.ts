@@ -1,4 +1,6 @@
 import { useReducer } from 'react'
+
+import { m } from '@/paraglide/messages'
 import type { ColumnDef, ParsedCsv, ValidationResult } from '@/types/validator'
 
 type Stage = 'upload' | 'schema' | 'results'
@@ -44,8 +46,7 @@ function validatorReducer(
           type: 'string',
           required: false,
         })),
-        announcement:
-          'Step 2 of 3: Define schema. Configure column types and validation rules.',
+        announcement: m.validator_announcement_schema(),
       }
     case 'COLUMNS_CHANGED':
       return { ...state, columns: action.payload }
@@ -54,14 +55,14 @@ function validatorReducer(
         ...state,
         stage: 'results',
         result: action.payload,
-        announcement: 'Step 3 of 3: Validation complete.',
+        announcement: m.validator_announcement_results(),
       }
     case 'ERROR':
       return { ...state, error: action.payload }
     case 'RESET':
       return {
         ...initialState,
-        announcement: 'Step 1 of 3: Upload a CSV file.',
+        announcement: m.validator_announcement_upload(),
       }
   }
 }

@@ -1,13 +1,14 @@
-import type { ColumnDef, ColumnType } from '@/types/validator'
 import { useSchemaBuilder } from '@/features/validator/hooks/useSchemaBuilder'
+import { m } from '@/paraglide/messages'
+import type { ColumnDef, ColumnType } from '@/types/validator'
 
-const COLUMN_TYPES: { value: ColumnType; label: string }[] = [
-  { value: 'string', label: 'Text' },
-  { value: 'number', label: 'Number' },
-  { value: 'email', label: 'Email' },
-  { value: 'url', label: 'URL' },
-  { value: 'date', label: 'Date (ISO)' },
-  { value: 'boolean', label: 'Boolean' },
+const COLUMN_TYPES: { value: ColumnType; label: () => string }[] = [
+  { value: 'string', label: m.validator_type_string },
+  { value: 'number', label: m.validator_type_number },
+  { value: 'email', label: m.validator_type_email },
+  { value: 'url', label: m.validator_type_url },
+  { value: 'date', label: m.validator_type_date },
+  { value: 'boolean', label: m.validator_type_boolean },
 ]
 
 type Props = {
@@ -32,16 +33,18 @@ export default function SchemaBuilder({
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
         <div className="flex items-center justify-between gap-4">
-          <h2 className="text-xl font-bold text-(--sea-ink)">Define Schema</h2>
+          <h2 className="text-xl font-bold text-(--sea-ink)">
+            {m.validator_schema_heading()}
+          </h2>
           <button
             onClick={onChangeFile}
             className="text-sm font-semibold text-(--sea-ink-soft) underline underline-offset-2 hover:text-(--sea-ink)"
           >
-            Change file
+            {m.validator_schema_change_file()}
           </button>
         </div>
         <p className="text-sm text-(--sea-ink-soft)">
-          Set validation rules for each detected column.
+          {m.validator_schema_subtext()}
         </p>
       </div>
 
@@ -62,13 +65,13 @@ export default function SchemaBuilder({
                   onChange={(e) => handleField(i, 'required', e.target.checked)}
                   className="accent-(--lagoon)"
                 />
-                Required
+                {m.validator_schema_required()}
               </label>
             </div>
 
             <label className="flex flex-col gap-1">
               <span className="text-xs font-semibold uppercase tracking-wide text-(--sea-ink-soft)">
-                Type
+                {m.validator_schema_type_label()}
               </span>
               <select
                 value={col.type}
@@ -77,7 +80,7 @@ export default function SchemaBuilder({
               >
                 {COLUMN_TYPES.map((t) => (
                   <option key={t.value} value={t.value}>
-                    {t.label}
+                    {t.label()}
                   </option>
                 ))}
               </select>
@@ -89,7 +92,7 @@ export default function SchemaBuilder({
               <div className="grid grid-cols-2 gap-2">
                 <label className="flex flex-col gap-1">
                   <span className="text-xs font-semibold uppercase tracking-wide text-(--sea-ink-soft)">
-                    Min length
+                    {m.validator_schema_min_length()}
                   </span>
                   <input
                     type="number"
@@ -108,7 +111,7 @@ export default function SchemaBuilder({
                 </label>
                 <label className="flex flex-col gap-1">
                   <span className="text-xs font-semibold uppercase tracking-wide text-(--sea-ink-soft)">
-                    Max length
+                    {m.validator_schema_max_length()}
                   </span>
                   <input
                     type="number"
@@ -131,11 +134,11 @@ export default function SchemaBuilder({
             {col.type === 'string' && (
               <label className="flex flex-col gap-1">
                 <span className="text-xs font-semibold uppercase tracking-wide text-(--sea-ink-soft)">
-                  Allowed values (comma-separated)
+                  {m.validator_schema_allowed_values()}
                 </span>
                 <input
                   type="text"
-                  placeholder="e.g. active, inactive, pending"
+                  placeholder={m.validator_schema_allowed_values_placeholder()}
                   value={col.enum?.join(', ') ?? ''}
                   onChange={(e) => handleEnumChange(i, e.target.value)}
                   className="w-full rounded-lg border border-(--line) bg-(--chip-bg) px-3 py-2 text-sm text-(--sea-ink) focus:outline-none focus:ring-2 focus:ring-(--lagoon)"
@@ -147,7 +150,7 @@ export default function SchemaBuilder({
               <div className="grid grid-cols-2 gap-2">
                 <label className="flex flex-col gap-1">
                   <span className="text-xs font-semibold uppercase tracking-wide text-(--sea-ink-soft)">
-                    Min value
+                    {m.validator_schema_min_value()}
                   </span>
                   <input
                     type="number"
@@ -165,7 +168,7 @@ export default function SchemaBuilder({
                 </label>
                 <label className="flex flex-col gap-1">
                   <span className="text-xs font-semibold uppercase tracking-wide text-(--sea-ink-soft)">
-                    Max value
+                    {m.validator_schema_max_value()}
                   </span>
                   <input
                     type="number"
@@ -191,7 +194,7 @@ export default function SchemaBuilder({
         onClick={onValidate}
         className="self-start rounded-full bg-(--lagoon) px-6 py-2.5 text-sm font-semibold text-white shadow transition-opacity hover:opacity-90 active:opacity-75"
       >
-        Run Validation
+        {m.validator_run_button()}
       </button>
     </div>
   )

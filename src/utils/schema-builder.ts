@@ -1,101 +1,119 @@
-import * as v from 'valibot'
+import type { BaseIssue, BaseSchema, PipeItem } from 'valibot'
+import {
+  check,
+  email,
+  isoDate,
+  maxLength,
+  minLength,
+  optional,
+  pipe,
+  regex,
+  safeParse,
+  string,
+  url,
+} from 'valibot'
+
+import { m } from '@/paraglide/messages'
 import type { ColumnDef, RowError, ValidationResult } from '@/types/validator'
 
 function buildColumnValidator(
   col: ColumnDef,
-): v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> {
-  let schema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>
+): BaseSchema<unknown, unknown, BaseIssue<unknown>> {
+  let schema: BaseSchema<unknown, unknown, BaseIssue<unknown>>
 
   switch (col.type) {
     case 'number': {
-      const checks: v.PipeItem<string, string, v.BaseIssue<unknown>>[] = [
-        v.check(
+      const checks: PipeItem<string, string, BaseIssue<unknown>>[] = [
+        check(
           (val) => val.trim() !== '' && !isNaN(Number(val)),
-          'Must be a valid number',
+          m.validator_error_must_be_number(),
         ),
       ]
       if (col.min !== undefined) {
         const min = col.min
         checks.push(
-          v.check((val) => Number(val) >= min, `Must be at least ${min}`),
+          check(
+            (val) => Number(val) >= min,
+            m.validator_error_number_min({ min }),
+          ),
         )
       }
       if (col.max !== undefined) {
         const max = col.max
         checks.push(
-          v.check((val) => Number(val) <= max, `Must be at most ${max}`),
+          check(
+            (val) => Number(val) <= max,
+            m.validator_error_number_max({ max }),
+          ),
         )
       }
-      schema = v.pipe(v.string(), ...checks)
+      schema = pipe(string(), ...checks)
       break
     }
     case 'email': {
-      const pipes: v.PipeItem<string, string, v.BaseIssue<unknown>>[] = [
-        v.email('Must be a valid email address'),
+      const pipes: PipeItem<string, string, BaseIssue<unknown>>[] = [
+        email(m.validator_error_must_be_email()),
       ]
-      if (col.minLength !== undefined) pipes.push(v.minLength(col.minLength))
-      if (col.maxLength !== undefined) pipes.push(v.maxLength(col.maxLength))
-      schema = v.pipe(v.string(), ...pipes)
+      if (col.minLength !== undefined) pipes.push(minLength(col.minLength))
+      if (col.maxLength !== undefined) pipes.push(maxLength(col.maxLength))
+      schema = pipe(string(), ...pipes)
       break
     }
     case 'url': {
-      const pipes: v.PipeItem<string, string, v.BaseIssue<unknown>>[] = [
-        v.url('Must be a valid URL'),
+      const pipes: PipeItem<string, string, BaseIssue<unknown>>[] = [
+        url(m.validator_error_must_be_url()),
       ]
-      if (col.minLength !== undefined) pipes.push(v.minLength(col.minLength))
-      if (col.maxLength !== undefined) pipes.push(v.maxLength(col.maxLength))
-      schema = v.pipe(v.string(), ...pipes)
+      if (col.minLength !== undefined) pipes.push(minLength(col.minLength))
+      if (col.maxLength !== undefined) pipes.push(maxLength(col.maxLength))
+      schema = pipe(string(), ...pipes)
       break
     }
     case 'date': {
-      schema = v.pipe(
-        v.string(),
-        v.isoDate('Must be a valid ISO date (YYYY-MM-DD)'),
-      )
+      schema = pipe(string(), isoDate(m.validator_error_must_be_date()))
       break
     }
     case 'boolean': {
-      schema = v.pipe(
-        v.string(),
-        v.regex(
+      schema = pipe(
+        string(),
+        regex(
           /^(true|false|yes|no|1|0)$/i,
-          'Must be true/false, yes/no, or 1/0',
+          m.validator_error_must_be_boolean(),
         ),
       )
       break
     }
     default: {
       // string
-      const pipes: v.PipeItem<string, string, v.BaseIssue<unknown>>[] = []
+      const pipes: PipeItem<string, string, BaseIssue<unknown>>[] = []
       if (col.minLength !== undefined)
         pipes.push(
-          v.minLength(
+          minLength(
             col.minLength,
-            `Must be at least ${col.minLength} characters`,
+            m.validator_error_string_min_length({ min: col.minLength }),
           ),
         )
       if (col.maxLength !== undefined)
         pipes.push(
-          v.maxLength(
+          maxLength(
             col.maxLength,
-            `Must be at most ${col.maxLength} characters`,
+            m.validator_error_string_max_length({ max: col.maxLength }),
           ),
         )
       if (col.enum && col.enum.length > 0) {
         const allowed = col.enum
         pipes.push(
-          v.check(
+          check(
             (val) => allowed.includes(val),
-            `Must be one of: ${allowed.join(', ')}`,
+            m.validator_error_enum({ values: allowed.join(', ') }),
           ),
         )
       }
-      schema = pipes.length > 0 ? v.pipe(v.string(), ...pipes) : v.string()
+      schema = pipes.length > 0 ? pipe(string(), ...pipes) : string()
       break
     }
   }
 
-  return col.required ? schema : v.optional(schema)
+  return col.required ? schema : optional(schema)
 }
 
 export function validateRows(
@@ -118,14 +136,14 @@ export function validateRows(
             row: rowNum,
             column: col.name,
             value: rawValue ?? '',
-            message: 'This field is required',
+            message: m.validator_error_required(),
           })
         }
         continue
       }
 
       const colSchema = buildColumnValidator(col)
-      const result = v.safeParse(colSchema, rawValue)
+      const result = safeParse(colSchema, rawValue)
 
       if (!result.success) {
         const firstIssue = result.issues[0]

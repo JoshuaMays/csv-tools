@@ -1,5 +1,7 @@
 import { Upload } from 'lucide-react'
+
 import { useFileUpload } from '@/features/validator/hooks/useFileUpload'
+import { m } from '@/paraglide/messages'
 import type { ParsedCsv } from '@/types/validator'
 
 type Props = {
@@ -35,27 +37,29 @@ export default function FileUpload({ onParsed, onError }: Props) {
         <div>
           <p className="font-semibold text-(--sea-ink)">{fileName}</p>
           <p className="text-sm text-(--sea-ink-soft)">
-            Drop to replace, or{' '}
+            {m.validator_upload_replace_or()}{' '}
             <button
               type="button"
               onClick={() => inputRef.current?.click()}
               className="font-semibold text-(--lagoon) underline underline-offset-2 hover:opacity-80"
             >
-              browse
+              {m.validator_upload_browse()}
             </button>
           </p>
         </div>
       ) : (
         <div>
-          <p className="font-semibold text-(--sea-ink)">Drop your CSV here</p>
+          <p className="font-semibold text-(--sea-ink)">
+            {m.validator_upload_heading()}
+          </p>
           <p className="text-sm text-(--sea-ink-soft)">
-            or{' '}
+            {m.validator_upload_or()}{' '}
             <button
               type="button"
               onClick={() => inputRef.current?.click()}
               className="font-semibold text-(--lagoon) underline underline-offset-2 hover:opacity-80"
             >
-              browse files
+              {m.validator_upload_browse_files()}
             </button>
           </p>
         </div>

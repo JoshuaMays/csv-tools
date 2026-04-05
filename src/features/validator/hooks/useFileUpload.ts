@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from 'react'
 import {
   dropTargetForExternal,
   monitorForExternal,
@@ -8,6 +7,9 @@ import {
   getFiles,
 } from '@atlaskit/pragmatic-drag-and-drop/external/file'
 import { preventUnhandled } from '@atlaskit/pragmatic-drag-and-drop/prevent-unhandled'
+import { useEffect, useRef, useState } from 'react'
+
+import { m } from '@/paraglide/messages'
 import type { ParsedCsv } from '@/types/validator'
 
 type UseFileUploadProps = {
@@ -40,7 +42,7 @@ export function useFileUpload({
 
   async function handleFile(file: File) {
     if (!file.name.endsWith('.csv') && file.type !== 'text/csv') {
-      onErrorRef.current('Please upload a .csv file.')
+      onErrorRef.current(m.validator_error_wrong_type())
       return
     }
     setFileName(file.name)
@@ -48,15 +50,13 @@ export function useFileUpload({
       const { parseCsvFile } = await import('@/utils/csv')
       const result = await parseCsvFile(file)
       if (result.headers.length === 0) {
-        onErrorRef.current(
-          'The CSV file has no headers. Please upload a file with a header row.',
-        )
+        onErrorRef.current(m.validator_error_no_headers())
         return
       }
       onParsedRef.current(result)
     } catch (err) {
       onErrorRef.current(
-        err instanceof Error ? err.message : 'Failed to parse CSV file.',
+        err instanceof Error ? err.message : m.validator_error_parse_failed(),
       )
     }
   }
@@ -74,7 +74,7 @@ export function useFileUpload({
         setDragging(false)
         const files = getFiles({ source })
         if (files.length > 1) {
-          onErrorRef.current('Please drop a single CSV file.')
+          onErrorRef.current(m.validator_error_multiple_files())
           return
         }
         if (files[0]) handleFile(files[0])
