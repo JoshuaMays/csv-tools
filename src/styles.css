@@ -5,6 +5,15 @@
 
 @theme {
   --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+
+  /* Spacing */
+  --spacing-page-gutter: 1rem; /* horizontal page edge gutter → px-page-gutter */
+  --spacing-content-top: 3.5rem; /* below sticky header     → pt-content-top */
+  --spacing-content-bottom: 2rem; /* page bottom             → pb-content-bottom */
+
+  /* Radius */
+  --radius-card: 1rem; /* panels and cards → rounded-card */
+  --radius-hero: 2rem; /* hero sections    → rounded-hero */
 }
 
 /* ─── Primitive colour palette ─────────────────────────────── */
@@ -60,6 +69,10 @@
   --text-muted: var(--sea-ink-soft);
   --text-link: var(--lagoon-deep);
   --text-link-hover: var(--link-hover);
+  --shadow-chip: 0 8px 24px hsl(var(--green-800) / 0.08);
+  --btn-primary-bg: hsl(var(--teal-600));
+  --btn-primary-text: hsl(0 0% 100%);
+  --selection-bg: hsl(var(--teal-500) / 0.24);
 }
 
 :root[data-theme='dark'] {
@@ -82,6 +95,8 @@
   --link-hover: hsl(var(--teal-200));
   --hero-a: hsl(var(--teal-400) / 0.18);
   --hero-b: hsl(var(--green-400) / 0.12);
+  --btn-primary-bg: hsl(var(--teal-400));
+  --btn-primary-text: hsl(var(--teal-900));
 }
 
 @media (prefers-color-scheme: dark) {
@@ -105,6 +120,8 @@
     --link-hover: hsl(var(--teal-200));
     --hero-a: hsl(var(--teal-400) / 0.18);
     --hero-b: hsl(var(--green-400) / 0.12);
+    --btn-primary-bg: hsl(var(--teal-400));
+    --btn-primary-text: hsl(var(--teal-900));
   }
 }
 
@@ -112,9 +129,11 @@
   box-sizing: border-box;
 }
 
-html,
-body {
-  min-height: 100dvh;
+a,
+button,
+select,
+input[type='file'] {
+  cursor: pointer;
 }
 
 body {

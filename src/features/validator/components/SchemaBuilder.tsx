@@ -192,7 +192,7 @@ export default function SchemaBuilder({
 
       <button
         onClick={onValidate}
-        className="self-start rounded-full bg-(--lagoon) px-6 py-2.5 text-sm font-semibold text-white shadow transition-opacity hover:opacity-90 active:opacity-75"
+        className="self-start rounded-full bg-(--btn-primary-bg) px-6 py-2.5 text-sm font-semibold text-(--btn-primary-text) shadow transition-opacity hover:opacity-90 active:opacity-75"
       >
         {m.validator_run_button()}
       </button>
