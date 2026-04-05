@@ -6,8 +6,8 @@
     "#/*": "./src/*"
   },
   "scripts": {
-    "dev": "vite dev --port 3000",
-    "build": "vite build",
+    "dev": "npm run codegen && node scripts/build-workers.mjs && vite dev --port 3000",
+    "build": "npm run codegen && node scripts/build-workers.mjs && vite build",
     "preview": "vite preview",
     "deploy": "npm run build && wrangler deploy",
     "codegen": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide",
@@ -38,6 +38,7 @@
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.31.0",
+    "esbuild": "^0.27.7",
     "@inlang/paraglide-js": "^2.13.1",
     "@tailwindcss/typography": "^0.5.16",
     "@tanstack/devtools-vite": "latest",

@@ -36,7 +36,9 @@ export function parseCsvFile(file: File): Promise<ParsedCsv> {
 
 export function parseCsvFileInWorker(file: File): Promise<ParsedCsv> {
   return spawnWorker<{ file: File }, ParsedCsv>(
-    new URL('../workers/csv.worker.ts', import.meta.url),
-    { file },
+    () => new Worker('/csv-worker.js'),
+    {
+      file,
+    },
   )
 }

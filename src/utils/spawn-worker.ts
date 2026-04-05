@@ -23,11 +23,24 @@ export type WorkerResponse<T> =
   | { ok: false; errorCode: WorkerErrorCode }
 
 export function spawnWorker<TReq, TData>(
-  url: URL,
+  workerFactory: () => Worker,
   message: TReq,
 ): Promise<TData> {
   return new Promise((resolve, reject) => {
-    const worker = new Worker(url, { type: 'module' })
+    let worker: Worker
+    try {
+      worker = workerFactory()
+    } catch (err) {
+      reject(
+        new WorkerError(
+          WORKER_ERROR_CODES.WORKER_CRASHED,
+          err != null && typeof err === 'object' && 'message' in err
+            ? String((err as { message: unknown }).message)
+            : undefined,
+        ),
+      )
+      return
+    }
     worker.onmessage = (event: MessageEvent<WorkerResponse<TData>>) => {
       worker.terminate()
       if (event.data.ok) {
