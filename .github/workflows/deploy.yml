@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
       - main
+    types: [opened, synchronize, reopened, closed]
   workflow_dispatch:
 
 concurrency:
@@ -17,6 +18,8 @@ jobs:
   verify:
     name: Lint, Typecheck & Test
     runs-on: ubuntu-latest
+    # Skip on PR close – there is nothing to verify, only cleanup to run
+    if: github.event.action != 'closed'
     permissions:
       contents: read
       pull-requests: write
@@ -65,10 +68,11 @@ jobs:
           threshold-icons: '{"0": "🔴", "80": "🟠", "90": "🟢"}'
 
   deploy:
-    name: Deploy to Cloudflare Workers
+    name: Deploy to Production
     runs-on: ubuntu-latest
     needs: verify
     if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
+    environment: production
     permissions:
       contents: read
 
@@ -94,3 +98,64 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
+
+  deploy-preview:
+    name: Deploy PR Preview
+    runs-on: ubuntu-latest
+    needs: verify
+    if: github.event_name == 'pull_request' && github.event.action != 'closed'
+    environment: preview
+    permissions:
+      contents: read
+      pull-requests: write # required for wrangler-action to post the preview URL comment
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy --name csv-tools-pr-${{ github.event.pull_request.number }}
+
+  cleanup-preview:
+    name: Delete PR Preview Worker
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    environment: preview
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Delete preview Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: delete --name csv-tools-pr-${{ github.event.pull_request.number }} --force
