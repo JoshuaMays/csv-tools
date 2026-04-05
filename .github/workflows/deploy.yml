@@ -49,6 +49,13 @@ jobs:
       - name: Test with coverage
         run: npm test -- --coverage
 
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ github.run_id }}
+          path: dist/
+          retention-days: 1
+
       - name: Upload coverage report
         if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
@@ -77,20 +84,20 @@ jobs:
       contents: read
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version-file: .node-version
           cache: npm
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install dependencies (wrangler only)
+        run: npm ci --ignore-scripts
 
-      - name: Build
-        run: npm run build
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-${{ github.run_id }}
+          path: dist/
 
       - name: Deploy
         uses: cloudflare/wrangler-action@v3
@@ -110,20 +117,20 @@ jobs:
       pull-requests: write # required for wrangler-action to post the preview URL comment
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version-file: .node-version
           cache: npm
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install dependencies (wrangler only)
+        run: npm ci --ignore-scripts
 
-      - name: Build
-        run: npm run build
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-${{ github.run_id }}
+          path: dist/
 
       - name: Deploy
         uses: cloudflare/wrangler-action@v3
