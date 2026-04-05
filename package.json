@@ -10,6 +10,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "deploy": "npm run build && wrangler deploy",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
