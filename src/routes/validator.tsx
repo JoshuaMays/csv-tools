@@ -1,12 +1,22 @@
 import { createFileRoute } from '@tanstack/react-router'
 
+import PageContainer from '@/components/PageContainer'
+
 import FileUpload from '@/features/validator/components/FileUpload'
 import SchemaBuilder from '@/features/validator/components/SchemaBuilder'
 import ValidationResults from '@/features/validator/components/ValidationResults'
 import { useValidatorFlow } from '@/features/validator/hooks/useValidatorFlow'
 import { m } from '@/paraglide/messages'
 
-export const Route = createFileRoute('/validator')({ component: ValidatorPage })
+export const Route = createFileRoute('/validator')({
+  component: ValidatorPage,
+  head: () => ({
+    meta: [
+      { title: m.validator_meta_title() },
+      { name: 'description', content: m.validator_meta_description() },
+    ],
+  }),
+})
 
 type Stage = 'upload' | 'schema' | 'results'
 
@@ -25,7 +35,7 @@ function ValidatorPage() {
   } = useValidatorFlow()
 
   return (
-    <main className="page-wrap px-4 pb-8 pt-14">
+    <PageContainer>
       <div
         role="status"
         aria-live="polite"
@@ -99,6 +109,6 @@ function ValidatorPage() {
       {stage === 'results' && result && (
         <ValidationResults result={result} onReset={handleReset} />
       )}
-    </main>
+    </PageContainer>
   )
 }
