@@ -100,6 +100,22 @@ describe('validateRows – email type', () => {
       validateRows([{ email: 'not-an-email' }], [col]).errors,
     ).toHaveLength(1)
   })
+
+  it('enforces minLength on a valid email', () => {
+    const c: ColumnDef = { ...col, minLength: 20 }
+    expect(validateRows([{ email: 'a@b.com' }], [c]).errors).toHaveLength(1)
+    expect(
+      validateRows([{ email: 'longuser@example.com' }], [c]).errors,
+    ).toHaveLength(0)
+  })
+
+  it('enforces maxLength on a valid email', () => {
+    const c: ColumnDef = { ...col, maxLength: 8 }
+    expect(
+      validateRows([{ email: 'user@example.com' }], [c]).errors,
+    ).toHaveLength(1)
+    expect(validateRows([{ email: 'a@b.com' }], [c]).errors).toHaveLength(0)
+  })
 })
 
 describe('validateRows – url type', () => {
@@ -115,6 +131,27 @@ describe('validateRows – url type', () => {
     expect(validateRows([{ website: 'not a url' }], [col]).errors).toHaveLength(
       1,
     )
+  })
+
+  it('enforces minLength on a valid URL', () => {
+    const c: ColumnDef = { ...col, minLength: 30 }
+    expect(
+      validateRows([{ website: 'https://x.com' }], [c]).errors,
+    ).toHaveLength(1)
+    expect(
+      validateRows([{ website: 'https://example.com/long-enough-path' }], [c])
+        .errors,
+    ).toHaveLength(0)
+  })
+
+  it('enforces maxLength on a valid URL', () => {
+    const c: ColumnDef = { ...col, maxLength: 20 }
+    expect(
+      validateRows([{ website: 'https://example.com/very-long' }], [c]).errors,
+    ).toHaveLength(1)
+    expect(
+      validateRows([{ website: 'https://x.com' }], [c]).errors,
+    ).toHaveLength(0)
   })
 })
 
