@@ -5,7 +5,7 @@ import { parseCsvString } from '@/utils/csv'
 import { validateRows } from '@/utils/schema-builder'
 import type { ColumnDef } from '@/types/validator'
 
-const SAMPLES = join(import.meta.dirname, '../samples')
+const SAMPLES = join(import.meta.dirname, '../../samples')
 
 function loadSample(filename: string) {
   const content = readFileSync(join(SAMPLES, filename), 'utf-8')
