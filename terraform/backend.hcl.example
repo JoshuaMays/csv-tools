@@ -1,0 +1,14 @@
+# Copy this file to backend.hcl (gitignored) and fill in your values.
+# Used when running `terraform init` locally.
+# In CI, these values are supplied via -backend-config flags — see
+# the terraform-infra job in .github/workflows/deploy.yml.
+#
+# R2 endpoint: your Cloudflare account ID is in the URL.
+# Find it at: https://dash.cloudflare.com → right-hand sidebar of any zone.
+endpoint = "https://YOUR_ACCOUNT_ID.r2.cloudflarestorage.com"
+
+# R2 API token credentials — NOT your Cloudflare API token.
+# Create a token at: Cloudflare dashboard → R2 → Manage R2 API Tokens
+# Minimum permissions: Object Read & Write on the csv-tools-tfstate bucket.
+access_key = "your-r2-access-key-id"
+secret_key = "your-r2-secret-access-key"

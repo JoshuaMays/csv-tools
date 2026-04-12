@@ -11,3 +11,19 @@
 #   Account > Account Settings > Read
 cloudflare_api_token  = "your-cloudflare-api-token"
 cloudflare_account_id = "your-cloudflare-account-id"
+
+# -----------------------------------------------------------------------
+# Environment — set to true only in your production tfvars.
+# When false, the custom domain resource is skipped and the token does
+# not need Zone > Workers Routes permissions.
+# -----------------------------------------------------------------------
+
+is_production = false
+
+# -----------------------------------------------------------------------
+# Custom domain — find zone_id on the Overview tab of your domain in
+# the Cloudflare dashboard. Only used when is_production = true.
+# -----------------------------------------------------------------------
+
+zone_id       = "your-zone-id"
+custom_domain = "csvtools.example.com"
