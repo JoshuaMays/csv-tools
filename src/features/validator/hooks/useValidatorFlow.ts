@@ -4,7 +4,8 @@ import { m } from '@/paraglide/messages'
 import { WorkerError } from '@/utils/spawn-worker'
 import type { ColumnDef, ParsedCsv, ValidationResult } from '@/types/validator'
 
-type Stage = 'upload' | 'schema' | 'results'
+export const STAGES = ['upload', 'schema', 'results'] as const
+export type Stage = (typeof STAGES)[number]
 
 type ValidatorState = {
   stage: Stage

@@ -1,9 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router'
 
+import ErrorAlert from '@/components/ErrorAlert'
 import PageContainer from '@/components/PageContainer'
-
+import ScreenReaderAnnouncement from '@/components/ScreenReaderAnnouncement'
 import FileUpload from '@/features/validator/components/FileUpload'
 import SchemaBuilder from '@/features/validator/components/SchemaBuilder'
+import StepIndicator from '@/features/validator/components/StepIndicator'
 import ValidationResults from '@/features/validator/components/ValidationResults'
 import { useValidatorFlow } from '@/features/validator/hooks/useValidatorFlow'
 import { m } from '@/paraglide/messages'
@@ -17,8 +19,6 @@ export const Route = createFileRoute('/validator')({
     ],
   }),
 })
-
-type Stage = 'upload' | 'schema' | 'results'
 
 function ValidatorPage() {
   const {
@@ -36,62 +36,19 @@ function ValidatorPage() {
 
   return (
     <PageContainer>
-      <div
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-        className="sr-only"
-      >
-        {announcement}
-      </div>
+      <ScreenReaderAnnouncement message={announcement} />
       <div className="mb-8">
-        <h1 className="display-title mb-2 text-3xl font-bold tracking-tight text-(--sea-ink) sm:text-4xl">
+        <h1 className="display-title mb-2 text-3xl font-bold tracking-tight text-(--text-base) sm:text-4xl">
           {m.validator_page_title()}
         </h1>
-        <p className="text-sm text-(--sea-ink-soft)">
+        <p className="text-sm text-(--text-muted)">
           {m.validator_page_description()}
         </p>
       </div>
 
-      {/* Step indicator */}
-      <nav
-        aria-label={m.validator_steps_nav_label()}
-        className="mb-8 flex items-center gap-2 text-sm font-semibold"
-      >
-        {(['upload', 'schema', 'results'] as Stage[]).map((s, i) => (
-          <span key={s} className="flex items-center gap-2">
-            {i > 0 && (
-              <span aria-hidden={true} className="text-(--sea-ink-soft)">
-                /
-              </span>
-            )}
-            <span
-              aria-current={stage === s ? 'step' : undefined}
-              className={
-                stage === s
-                  ? 'text-(--sea-ink)'
-                  : 'text-(--sea-ink-soft) opacity-50'
-              }
-            >
-              {i + 1}.{' '}
-              {s === 'upload'
-                ? m.validator_step_upload()
-                : s === 'schema'
-                  ? m.validator_step_schema()
-                  : m.validator_step_results()}
-            </span>
-          </span>
-        ))}
-      </nav>
+      <StepIndicator stage={stage} />
 
-      {error && (
-        <div
-          role="alert"
-          className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400"
-        >
-          {error}
-        </div>
-      )}
+      {error && <ErrorAlert error={error} />}
 
       {stage === 'upload' && (
         <FileUpload onParsed={handleParsed} onError={handleError} />

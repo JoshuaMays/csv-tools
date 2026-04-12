@@ -1,7 +1,10 @@
 import Papa from 'papaparse'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { parseCsvFile, parseCsvString } from '@/utils/csv'
+import { parseCsvFile, parseCsvFileInWorker, parseCsvString } from '@/utils/csv'
+import * as spawnWorkerModule from '@/utils/spawn-worker'
+
+vi.mock('@/utils/spawn-worker', () => ({ spawnWorker: vi.fn() }))
 
 afterEach(() => {
   vi.restoreAllMocks()
@@ -91,5 +94,32 @@ describe('parseCsvFile', () => {
     )
     const file = new File([''], 'test.csv', { type: 'text/csv' })
     await expect(parseCsvFile(file)).rejects.toThrow('read error')
+  })
+})
+
+describe('parseCsvFileInWorker', () => {
+  it('delegates to spawnWorker with the file as payload', async () => {
+    const file = new File(['name\nAlice'], 'test.csv', { type: 'text/csv' })
+    const expected = { headers: ['name'], rows: [{ name: 'Alice' }] }
+    const mockSpawnWorker = vi.mocked(spawnWorkerModule.spawnWorker)
+    mockSpawnWorker.mockResolvedValueOnce(expected)
+
+    const result = await parseCsvFileInWorker(file)
+
+    expect(mockSpawnWorker).toHaveBeenCalledOnce()
+    const [factoryFn, payload] = mockSpawnWorker.mock.calls[0]
+    expect(payload).toEqual({ file })
+    // The factory should produce a Worker for /csv-worker.js
+    expect(factoryFn.toString()).toContain('/csv-worker.js')
+    expect(result).toEqual(expected)
+  })
+
+  it('propagates rejection from spawnWorker', async () => {
+    const file = new File([''], 'bad.csv')
+    vi.mocked(spawnWorkerModule.spawnWorker).mockRejectedValueOnce(
+      new Error('worker failed'),
+    )
+
+    await expect(parseCsvFileInWorker(file)).rejects.toThrow('worker failed')
   })
 })

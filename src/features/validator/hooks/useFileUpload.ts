@@ -23,6 +23,7 @@ type UseFileUploadReturn = {
   fileName: string | null
   dropZoneRef: React.RefObject<HTMLDivElement | null>
   inputRef: React.RefObject<HTMLInputElement | null>
+  onBrowse: () => void
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void
 }
 
@@ -103,5 +104,9 @@ export function useFileUpload({
     if (file) handleFile(file)
   }
 
-  return { dragging, fileName, dropZoneRef, inputRef, onInputChange }
+  function onBrowse() {
+    inputRef.current?.click()
+  }
+
+  return { dragging, fileName, dropZoneRef, inputRef, onBrowse, onInputChange }
 }

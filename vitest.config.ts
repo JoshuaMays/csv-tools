@@ -6,10 +6,11 @@ export default defineConfig({
   plugins: [tsconfigPaths({ projects: ['./tsconfig.json'] }), viteReact()],
   test: {
     environment: 'jsdom',
+    setupFiles: ['./tests/setup.ts'],
     include: ['tests/**/*.test.ts', 'tests/**/*.test.tsx'],
     coverage: {
       exclude: ['src/paraglide/**', 'src/routeTree.gen.ts'],
-      reporter: ['text', 'json-summary', 'json'],
+      reporter: ['text', 'json-summary', 'json', 'html'],
     },
   },
 })
