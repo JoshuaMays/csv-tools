@@ -37,7 +37,9 @@ export function useSchemaBuilder({
       max: _max,
       ...rest
     } = columns[index]
-    onChange(updateColumn(columns, index, { ...rest, type }))
+    // Spread `rest` directly (not through updateColumn) so that the
+    // destructured constraint fields are genuinely absent from the result.
+    onChange(columns.map((col, i) => (i === index ? { ...rest, type } : col)))
   }
 
   function handleField<TKey extends keyof ColumnDef>(
