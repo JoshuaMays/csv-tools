@@ -124,6 +124,9 @@ jobs:
     environment: production
     permissions:
       contents: read
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_KEY }}
 
     steps:
       - name: Checkout
@@ -135,11 +138,10 @@ jobs:
       - name: Terraform Init
         working-directory: terraform
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_KEY }}
+          R2_ENDPOINT: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
         run: |
-          terraform init \
-            -backend-config="endpoint=https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com"
+          printf 'endpoints = { s3 = "%s" }' "$R2_ENDPOINT" > ci-backend.hcl
+          terraform init -backend-config=ci-backend.hcl
 
       - name: Terraform Apply
         working-directory: terraform

@@ -3,5 +3,5 @@
 
 output "worker_hostname" {
   description = "The custom hostname assigned to the csv-tools Worker. Empty string when is_production = false."
-  value       = var.is_production ? cloudflare_workers_domain.custom_domain[0].hostname : ""
+  value       = var.is_production ? cloudflare_workers_custom_domain.custom_domain[0].hostname : ""
 }

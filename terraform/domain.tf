@@ -17,7 +17,7 @@
 # (which use a token without Zone > Workers Routes permissions) are unaffected.
 # ---------------------------------------------------------------------------
 
-resource "cloudflare_workers_domain" "custom_domain" {
+resource "cloudflare_workers_custom_domain" "custom_domain" {
   count = var.is_production ? 1 : 0
 
   account_id = var.cloudflare_account_id
