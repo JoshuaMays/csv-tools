@@ -26,4 +26,4 @@ is_production = false
 # -----------------------------------------------------------------------
 
 zone_id       = "your-zone-id"
-custom_domain = "csvtools.example.com"
+custom_domain = "csv-tools.example.com"
