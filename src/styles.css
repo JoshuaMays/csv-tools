@@ -85,7 +85,12 @@
   --error-text: hsl(var(--red-700));
 }
 
+:root {
+  color-scheme: light;
+}
+
 :root[data-theme='dark'] {
+  color-scheme: dark;
   --sea-ink: hsl(var(--teal-50));
   --sea-ink-soft: hsl(var(--teal-100));
   --lagoon: hsl(var(--teal-400));
@@ -114,6 +119,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
+    color-scheme: dark;
     --sea-ink: hsl(var(--teal-50));
     --sea-ink-soft: hsl(var(--teal-100));
     --lagoon: hsl(var(--teal-400));
