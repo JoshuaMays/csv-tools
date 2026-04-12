@@ -34,7 +34,7 @@ variable "zone_id" {
 }
 
 variable "custom_domain" {
-  description = "Full hostname to assign to the csv-tools Worker (e.g. csvtools.example.com). Set via TF_VAR_custom_domain in CI."
+  description = "Full hostname to assign to the csv-tools Worker (e.g. csv-tools.example.com). Set via TF_VAR_custom_domain in CI."
   type        = string
   default     = ""
 }

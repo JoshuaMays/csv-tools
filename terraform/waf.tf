@@ -25,14 +25,7 @@ resource "cloudflare_ruleset" "block_bot_probes" {
       action      = "block"
       description = "Block probes targeting GraphQL / bare API endpoints"
       enabled     = true
-      expression  = "http.request.uri.path matches \"^/(graphql|api)(/|$)\""
-      action_parameters = {
-        response = {
-          status_code  = 404
-          content      = "Not found."
-          content_type = "text/plain"
-        }
-      }
+      expression  = "(http.request.uri.path eq \"/api\") or starts_with(http.request.uri.path, \"/api/\") or (http.request.uri.path eq \"/graphql\") or starts_with(http.request.uri.path, \"/graphql/\")"
     },
 
     # WordPress / common CMS probes (e.g. /wp-admin, /wp-login.php, /xmlrpc.php)
@@ -40,45 +33,25 @@ resource "cloudflare_ruleset" "block_bot_probes" {
       action      = "block"
       description = "Block WordPress and CMS endpoint probes"
       enabled     = true
-      expression  = "(http.request.uri.path matches \"^/wp[-/]\") or (http.request.uri.path in {\"/xmlrpc.php\" \"/wp-cron.php\"})"
-      action_parameters = {
-        response = {
-          status_code  = 404
-          content      = "Not found."
-          content_type = "text/plain"
-        }
-      }
+      expression  = "starts_with(http.request.uri.path, \"/wp-\") or starts_with(http.request.uri.path, \"/wp/\") or (http.request.uri.path in {\"/xmlrpc.php\" \"/wp-cron.php\"})"
     },
 
     # PHP / server-side script extension probes
+    # http.request.uri.path never includes the query string so ends_with is sufficient.
     {
       action      = "block"
       description = "Block probes for PHP, ASP, JSP, and CGI script paths"
       enabled     = true
-      expression  = "http.request.uri.path matches \"\\.(php|asp|aspx|jsp|cgi|sh)(\\?|$)\""
-      action_parameters = {
-        response = {
-          status_code  = 404
-          content      = "Not found."
-          content_type = "text/plain"
-        }
-      }
+      expression  = "ends_with(http.request.uri.path, \".php\") or ends_with(http.request.uri.path, \".asp\") or ends_with(http.request.uri.path, \".aspx\") or ends_with(http.request.uri.path, \".jsp\") or ends_with(http.request.uri.path, \".cgi\") or ends_with(http.request.uri.path, \".sh\")"
     },
 
-    # Sensitive dotfile / hidden directory probes (e.g. /.env, /.git, /.aws)
-    # /.well-known is excluded — used for ACME challenges and browser hints.
+    # Sensitive dotfile probes (e.g. /.env, /.git, /.aws, /.ssh)
+    # Enumerating known targets is more precise than a broad starts_with("/." ) on Free plan.
     {
       action      = "block"
       description = "Block probes for dotfiles and hidden directories"
       enabled     = true
-      expression  = "(http.request.uri.path matches \"^/\\.\") and (not http.request.uri.path matches \"^/\\.well-known/\")"
-      action_parameters = {
-        response = {
-          status_code  = 404
-          content      = "Not found."
-          content_type = "text/plain"
-        }
-      }
+      expression  = "starts_with(http.request.uri.path, \"/.env\") or starts_with(http.request.uri.path, \"/.git\") or starts_with(http.request.uri.path, \"/.aws\") or starts_with(http.request.uri.path, \"/.ssh\") or starts_with(http.request.uri.path, \"/.htaccess\") or starts_with(http.request.uri.path, \"/.DS_Store\")"
     },
 
     # Admin / database UI probes (e.g. /admin, /phpmyadmin, /adminer)
@@ -86,14 +59,7 @@ resource "cloudflare_ruleset" "block_bot_probes" {
       action      = "block"
       description = "Block probes for admin panels and database UIs"
       enabled     = true
-      expression  = "http.request.uri.path matches \"^/(admin|administrator|phpmyadmin|pma|adminer|db|sql|database)(/|$)\""
-      action_parameters = {
-        response = {
-          status_code  = 404
-          content      = "Not found."
-          content_type = "text/plain"
-        }
-      }
+      expression  = "(http.request.uri.path in {\"/admin\" \"/administrator\" \"/phpmyadmin\" \"/pma\" \"/adminer\" \"/db\" \"/sql\" \"/database\"}) or starts_with(http.request.uri.path, \"/admin/\") or starts_with(http.request.uri.path, \"/administrator/\") or starts_with(http.request.uri.path, \"/phpmyadmin/\") or starts_with(http.request.uri.path, \"/pma/\") or starts_with(http.request.uri.path, \"/adminer/\") or starts_with(http.request.uri.path, \"/db/\") or starts_with(http.request.uri.path, \"/sql/\") or starts_with(http.request.uri.path, \"/database/\")"
     },
   ]
 }
