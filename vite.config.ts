@@ -8,6 +8,9 @@ import viteReact from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 const config = defineConfig({
+  build: {
+    sourcemap: false,
+  },
   plugins: [
     devtools(),
     paraglideVitePlugin({
