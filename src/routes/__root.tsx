@@ -14,6 +14,8 @@ import TanStackQueryDevtools from '@/integrations/tanstack-query/devtools'
 import { getLocale } from '@/paraglide/runtime'
 
 import appCss from '@/styles.css?url'
+import frauncesFontUrl from '@fontsource-variable/fraunces/files/fraunces-latin-opsz-normal.woff2?url'
+import manropeFontUrl from '@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2?url'
 
 interface MyRouterContext {
   queryClient: QueryClient
@@ -44,6 +46,25 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
     ],
     links: [
+      {
+        rel: 'preload',
+        href: appCss,
+        as: 'style',
+      },
+      {
+        rel: 'preload',
+        href: frauncesFontUrl,
+        as: 'font',
+        type: 'font/woff2',
+        crossOrigin: 'anonymous',
+      },
+      {
+        rel: 'preload',
+        href: manropeFontUrl,
+        as: 'font',
+        type: 'font/woff2',
+        crossOrigin: 'anonymous',
+      },
       {
         rel: 'stylesheet',
         href: appCss,
