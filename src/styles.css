@@ -33,6 +33,13 @@
   /* Green scale */
   --green-400: 149 45% 61%;
   --green-800: 147 39% 30%;
+  /* Red scale */
+  --red-50: 0 86% 97%;
+  --red-200: 0 96% 89%;
+  --red-400: 0 91% 71%;
+  --red-700: 0 74% 42%;
+  --red-900: 0 63% 31%;
+  --red-950: 0 75% 16%;
   /* Neutral / base scale */
   --base-50: 137 41% 97%;
   --base-100: 127 23% 92%;
@@ -73,6 +80,9 @@
   --btn-primary-bg: hsl(var(--teal-600));
   --btn-primary-text: hsl(0 0% 100%);
   --selection-bg: hsl(var(--teal-500) / 0.24);
+  --error-border: hsl(var(--red-200));
+  --error-bg: hsl(var(--red-50));
+  --error-text: hsl(var(--red-700));
 }
 
 :root[data-theme='dark'] {
@@ -97,6 +107,9 @@
   --hero-b: hsl(var(--green-400) / 0.12);
   --btn-primary-bg: hsl(var(--teal-400));
   --btn-primary-text: hsl(var(--teal-900));
+  --error-border: hsl(var(--red-900));
+  --error-bg: hsl(var(--red-950) / 0.3);
+  --error-text: hsl(var(--red-400));
 }
 
 @media (prefers-color-scheme: dark) {
@@ -122,6 +135,9 @@
     --hero-b: hsl(var(--green-400) / 0.12);
     --btn-primary-bg: hsl(var(--teal-400));
     --btn-primary-text: hsl(var(--teal-900));
+    --error-border: hsl(var(--red-900));
+    --error-bg: hsl(var(--red-950) / 0.3);
+    --error-text: hsl(var(--red-400));
   }
 }
 
